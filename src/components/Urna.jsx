@@ -374,19 +374,33 @@ function Urna(props){
 
         <div className={styles.totalreal}>
 
-            <p>Brancos</p><div title='Quantidade de votos brancos.' className={styles.vbrancosreal}>{props.quantVBrancos}</div>
+            <div className="tt">
+                <p>Brancos</p><div title='Quantidade de votos brancos.' className={styles.vbrancosreal}>{props.quantVBrancos}</div>
+            </div>
             
-            <p>Nulos</p><div title='Quantidade de votos nulos.' className={styles.vnulosreal}>{props.quantVNulos}</div>
+            <div className="tt">
+                <p>Nulos</p><div title='Quantidade de votos nulos.' className={styles.vnulosreal}>{props.quantVNulos}</div>
+            </div>
             
-            <p>Polícia</p><div title='Quantidade de votos do candidato 1.' className={styles.cand1}>{props.candidato1}</div>
+            <div className="tt">
+                <p>Polícia</p><div title='Quantidade de votos do candidato 1.' className={styles.cand1}>{props.candidato1}</div>
+            </div>
             
-            <p>Ladrão</p><div  title='Quantidade de votos do candidato 2.' className={styles.cand2}>{props.candidato2}</div>
+            <div className="tt">
+                <p>Ladrão</p><div  title='Quantidade de votos do candidato 2.' className={styles.cand2}>{props.candidato2}</div>
+            </div>
             
-            <p>Total Váls.</p><div className={styles.totalcandtela} title='Total de votos válidos.' >{Number(props.candidato1) + Number(props.candidato2)}</div>
+            <div className="tt">
+                <p>Total Váls.</p><div className={styles.totalcandtela} title='Total de votos válidos.' >{Number(props.candidato1) + Number(props.candidato2)}</div>
+            </div>
 
-            <p>Polícia</p><div style={{backgroundColor: corPorcentTela1}} className={styles.totalporcenttela1} title='Porcentagem do candidato 1.' >{props.porcentCand1}%</div>
+            <div className="tt">
+                <p>Polícia</p><div style={{backgroundColor: corPorcentTela1}} className={styles.totalporcenttela1} title='Porcentagem do candidato 1.' >{props.porcentCand1}%</div>
+            </div>
             
-            <p>Ladrão</p><div style={{backgroundColor: corPorcentTela2}} className={styles.totalporcenttela2} title='Porcentagem do candidato 2.' >{props.porcentCand2}%</div>
+            <div className="tt">
+                <p>Ladrão</p><div style={{backgroundColor: corPorcentTela2}} className={styles.totalporcenttela2} title='Porcentagem do candidato 2.' >{props.porcentCand2}%</div>
+            </div>
         
         </div>
 
