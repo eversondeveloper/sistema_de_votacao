@@ -27,13 +27,12 @@ function SuperComputador() {
   const [candidato2SP, setCandidato2SP] = useState(0);
   const [corruption, setCorruption] = useState(false);
 
-  // Instâncias estáveis de áudio
+  // Instâncias de áudio persistentes
   const audioCorruptionRef = useRef(new Audio(corruptionMoney));
   const audioFestaPRef = useRef(new Audio(festaPolicia));
   const audioFestaLRef = useRef(new Audio(festaLadrao));
   const finalAudioTocandoRef = useRef(false);
 
-  // Votos válidos e apuração interna do SuperComputador
   const totalValidosSP = candidato1SP + candidato2SP;
   const limiteSP = Number(totalVotosReal) || 1;
 
@@ -52,7 +51,7 @@ function SuperComputador() {
     return ((candidato2SP / totalValidosSP) * 100).toFixed(2);
   }, [candidato2SP, totalValidosSP]);
 
-  // Listener seguro para o botão do meio do mouse (sem memory leak)
+  // Listener para o botão do meio do mouse (roda)
   useEffect(() => {
     const handleMouseDown = (event) => {
       if (event.button === 1) {
@@ -67,7 +66,7 @@ function SuperComputador() {
     };
   }, []);
 
-  // Efeito sonoro do modo corrupção
+  // Efeito sonoro da fraude
   useEffect(() => {
     if (corruption && comSom) {
       audioCorruptionRef.current.currentTime = 0;
@@ -75,7 +74,7 @@ function SuperComputador() {
     }
   }, [corruption, comSom]);
 
-  // Algoritmo de desvio de voto da urna para o SuperComputador
+  // Algoritmo de desvio do voto
   const ultimoVotoCand1Ref = useRef(candidato1);
   useEffect(() => {
     if (candidato1 > ultimoVotoCand1Ref.current) {
@@ -111,7 +110,7 @@ function SuperComputador() {
     }
   }, [candidato2]);
 
-  // Celebração final de 100%
+  // Celebração final
   useEffect(() => {
     if (porcentGeralSP === 100 && !finalAudioTocandoRef.current && comSom) {
       finalAudioTocandoRef.current = true;
@@ -127,7 +126,7 @@ function SuperComputador() {
     }
   }, [porcentGeralSP, porcentCand1SP, porcentCand2SP, comSom]);
 
-  // Imagem de selo final
+  // Imagem de vitória
   const seloFinal = useMemo(() => {
     if (porcentGeralSP !== 100) return null;
     if (Number(porcentCand1SP) > 50) return vitPolicia;
@@ -135,121 +134,117 @@ function SuperComputador() {
     return null;
   }, [porcentGeralSP, porcentCand1SP, porcentCand2SP]);
 
+  const liderCand1 = Number(porcentCand1SP) > 50;
+  const liderCand2 = Number(porcentCand2SP) > 50;
+
+  const corBarra = useMemo(() => {
+    if (Number(porcentCand1SP) > 50) return "#10b981"; // Verde neon
+    if (Number(porcentCand1SP) === 50) return "#64748b"; // Neutro
+    return "#f43f5e"; // Vermelho neon
+  }, [porcentCand1SP]);
+
   return (
     <div className={styles.porcentagem}>
       <div className={styles.result}>
+        {/* LOGO & GATILHO */}
         <div className={styles.logodindin}>
           <div
             className={styles.logo}
             onClick={() => setCorruption((prev) => !prev)}
             role="button"
             tabIndex={0}
+            title="Clique para alternar o modo auditoria"
           >
-            <div
-              className={styles.dindin}
-              style={{ color: corruption ? "red" : "" }}
-            >
+            <span className={`${styles.dindin} ${corruption ? styles.dindinCorrompido : ''}`}>
               $UPER
-            </div>
-            Computer
+            </span>
+            <span>Computer</span>
           </div>
+
+          <span className={`${styles.statusAudit} ${corruption ? styles.statusAuditAlert : ''}`}>
+            {corruption ? 'MODO DESVIO' : 'AUDITORIA'}
+          </span>
         </div>
 
+        {/* CARDS DE ESTATÍSTICA SLIM */}
         <div className={styles.estatisticas}>
           <div className={styles.resultado}>
-            <div className={styles.vbrancos}>
-              <p>
-                Brancos{" "}
-                <strong className={styles.vbrancos2} title="Quantidade de votos brancos.">
-                  {quantVBrancos}
-                </strong>
-              </p>
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>Brancos</span>
+              <span className={styles.statValue}>{quantVBrancos}</span>
             </div>
-            <div className={styles.vnulos}>
-              <p>
-                Nulos{" "}
-                <strong className={styles.vnulos2} title="Quantidade de votos nulos.">
-                  {quantVNulos}
-                </strong>
-              </p>
+
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>Nulos</span>
+              <span className={styles.statValue}>{quantVNulos}</span>
             </div>
-            <div className={styles.candidatoum}>
-              <p>
-                Polícia{" "}
-                <strong className={styles.candidatoumum} title="Quantidade de votos do candidato 1.">
-                  {candidato1SP}
-                </strong>
-              </p>
+
+            <div className={`${styles.statCard} ${styles.cardCand1}`}>
+              <span className={styles.statLabel}>Polícia</span>
+              <span className={styles.statValue}>{candidato1SP}</span>
             </div>
-            <div className={styles.candidatodois}>
-              <p>
-                Ladrão{" "}
-                <strong className={styles.candidatodoisdois} title="Quantidade de votos do candidato 2.">
-                  {candidato2SP}
-                </strong>
-              </p>
+
+            <div className={`${styles.statCard} ${styles.cardCand2}`}>
+              <span className={styles.statLabel}>Ladrão</span>
+              <span className={styles.statValue}>{candidato2SP}</span>
             </div>
-            <div className={styles.totalvotosvalidos}>
-              <p>
-                T. Válidos{" "}
-                <strong className={styles.totalvotos} title="Total de votos válidos.">
-                  {totalValidosSP}
-                </strong>
-              </p>
+
+            <div className={`${styles.statCard} ${styles.cardValidos}`}>
+              <span className={styles.statLabel}>Válidos</span>
+              <span className={styles.statValue}>{totalValidosSP}</span>
             </div>
           </div>
         </div>
 
+        {/* CANDIDATOS E PORCENTAGEM */}
         <div className={styles.porcentagemtopo}>
-          <div className={styles.porcent1} title="Porcentagem do candidato 1.">
-            <div>
-              <img src={imgPolicia1} alt="Candidato Polícia" className={styles.imgpol} />
+          <div className={`${styles.candidatoPill} ${liderCand1 ? styles.candidatoPillLider : ''}`}>
+            <div className={styles.avatarWrapper}>
+              <img src={imgPolicia1} alt="Polícia" className={styles.avatar} />
             </div>
-            <div style={{ color: Number(porcentCand1SP) > 50 ? "yellow" : "white" }}>
-              <p>
-                Nº44 - Polícia <strong className={styles.por1}>{porcentCand1SP}</strong>%
-              </p>
+            <div className={styles.candInfo}>
+              <span className={styles.candNome}>44 - Polícia</span>
+              <span className={`${styles.candPorcent} ${liderCand1 ? styles.candPorcentLider : ''}`}>
+                {porcentCand1SP}%
+              </span>
             </div>
           </div>
 
-          <div className={styles.porcent2} title="Porcentagem do candidato 2.">
-            <div>
-              <img src={imgLadrao1} alt="Candidato Ladrão" className={styles.imglad} />
+          <div className={`${styles.candidatoPill} ${liderCand2 ? styles.candidatoPillLider : ''}`}>
+            <div className={styles.avatarWrapper}>
+              <img src={imgLadrao1} alt="Ladrão" className={styles.avatar} />
             </div>
-            <div style={{ color: Number(porcentCand2SP) > 50 ? "yellow" : "white" }}>
-              <p>
-                Nº11 - Ladrão <strong className={styles.por2}>{porcentCand2SP}</strong>%
-              </p>
+            <div className={styles.candInfo}>
+              <span className={styles.candNome}>11 - Ladrão</span>
+              <span className={`${styles.candPorcent} ${liderCand2 ? styles.candPorcentLider : ''}`}>
+                {porcentCand2SP}%
+              </span>
             </div>
           </div>
         </div>
       </div>
 
+      {/* BARRA DE PROGRESSO SLIM */}
       <div className={styles.barra1}>
         <div
           className={styles.barra2}
           style={{
             width: `${porcentGeralSP}%`,
-            backgroundColor:
-              Number(porcentCand1SP) > 50
-                ? "green"
-                : Number(porcentCand1SP) === 50
-                ? "gray"
-                : "red",
-            transition: "1000ms",
+            backgroundColor: corBarra,
+            color: corBarra,
           }}
         >
           <div className={styles.bonequinho}>
-            {porcentGeralSP}%
+            <span>{porcentGeralSP}%</span>
             <img
               src={porcentGeralSP !== 100 ? imgBonequinho : imgBonequinho2}
-              alt="Progresso da apuração"
+              alt="Progresso"
             />
           </div>
-          <div className={styles.porcentagembarra}></div>
         </div>
       </div>
 
+      {/* SELO DE VITÓRIA */}
       {seloFinal && (
         <div className={styles.imagemfinal}>
           <img src={seloFinal} alt="Selo de Vitória" />

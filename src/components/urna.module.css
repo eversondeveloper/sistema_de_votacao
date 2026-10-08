@@ -1,11 +1,11 @@
 .corpo {
   background-image: url('../assets/img/fundo.png');
   background-size: cover;
-  height: 80vh;
-  max-height: 80vh;
+  height: 86vh;        /* aumentou de 80vh para 86vh */
+  max-height: 86vh;
   width: 100%;
   position: absolute;
-  top: 17vh;
+  top: 11vh;           /* desceu de 17vh para 11vh para colar perfeitamente */
   display: flex;
   align-items: center;
   justify-content: space-between;

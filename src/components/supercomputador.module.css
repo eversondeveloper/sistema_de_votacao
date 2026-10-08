@@ -1,186 +1,280 @@
-/* Painel Superior do SuperComputador */
+/* ==========================================================================
+   SUPERCOMPUTADOR - CYBER AUDIT HUD SLIM
+   ========================================================================== */
+
 .porcentagem {
   position: absolute;
   top: 0;
   left: 0;
-  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.459)), url('../assets/img/backimage.jpg');
-  background-position: center;
-  background-size: cover;
+  width: 100%;
+  height: 11vh;
+  max-height: 11vh;
+  background: linear-gradient(135deg, rgba(12, 17, 29, 0.96) 0%, rgba(18, 26, 44, 0.94) 50%, rgba(8, 12, 20, 0.98) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(0, 240, 255, 0.18);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: space-between;
-  font-weight: bold;
-  color: #ffffff;
-  width: 100%;
-  height: 17vh;
-  max-height: 17vh;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Oxygen", sans-serif;
+  color: #f1f5f9;
   user-select: none;
-  z-index: 10;
+  z-index: 100;
   box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Linha decorativa de grade cibernética no topo */
+.porcentagem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f0ff 25%, #7928ca 50%, #ff0055 75%, transparent);
+  opacity: 0.85;
 }
 
 .result {
   width: 100%;
+  height: calc(100% - 1.2vmin);
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  height: calc(100% - 2.5vmin);
-  padding: 0 1.5vmin;
+  justify-content: space-between;
+  padding: 0 2vmin;
   box-sizing: border-box;
+  gap: 1.5vmin;
 }
 
-/* Área Esquerda: Logo e Botão de Fraude */
+/* ==========================================================================
+   LOGOMARCA / MODO CORRUPÇÃO
+   ========================================================================== */
+
 .logodindin {
-  width: 18%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.8vmin;
   height: 100%;
 }
 
 .logo {
-  color: rgb(210, 210, 210);
-  font-size: 2.2vmin;
-  text-transform: uppercase;
   display: flex;
   align-items: center;
+  gap: 0.4vmin;
+  font-size: 1.8vmin;
+  font-weight: 800;
+  letter-spacing: 0.15vmin;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.6vmin 1.4vmin;
+  border-radius: 8px;
   cursor: pointer;
-  animation: corlogo 2s infinite alternate ease-in-out;
+  transition: all 250ms ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes corlogo {
-  from {
-    color: rgb(150, 150, 150);
-  }
-  to {
-    color: rgb(240, 240, 240);
-  }
+.logo:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(0, 240, 255, 0.4);
+  transform: translateY(-1px);
 }
 
 .dindin {
-  color: #00c44f;
-  margin-right: 0.4vmin;
-  transition: color 200ms ease;
+  font-weight: 900;
+  color: #00f0ff;
+  text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  transition: color 250ms ease, text-shadow 250ms ease;
 }
 
-.dindin:hover {
-  color: #007e32;
+/* Efeito ativado da corrupção */
+.dindinCorrompido {
+  color: #ff0055 !important;
+  text-shadow: 0 0 14px rgba(255, 0, 85, 0.85) !important;
+  animation: pulsoHacker 1s infinite alternate;
 }
 
-/* Área Central: Estatísticas de Votos */
+@keyframes pulsoHacker {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+.statusAudit {
+  font-size: 0.9vmin;
+  font-weight: 700;
+  letter-spacing: 0.08vmin;
+  padding: 0.3vmin 0.7vmin;
+  border-radius: 4px;
+  background: rgba(0, 240, 255, 0.1);
+  color: #00f0ff;
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  text-transform: uppercase;
+}
+
+.statusAuditAlert {
+  background: rgba(255, 0, 85, 0.15);
+  color: #ff0055;
+  border-color: rgba(255, 0, 85, 0.4);
+}
+
+/* ==========================================================================
+   CARDS DE ESTATÍSTICA (CENTRO)
+   ========================================================================== */
+
 .estatisticas {
-  padding: 0 1.5vmin;
-  width: 58%;
-  height: 80%;
+  flex: 1;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-left: #7a7a7a solid 2px;
-  border-right: #7a7a7a solid 2px;
-  box-sizing: border-box;
+  justify-content: center;
+  height: 100%;
 }
 
 .resultado {
   display: flex;
-  justify-content: space-between;
-  width: 100%;
   align-items: center;
+  justify-content: center;
+  gap: 1.2vmin;
+  width: 100%;
 }
 
-.resultado p {
-  font-size: 1.4vmin;
-  font-weight: bold;
+.statCard {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.4vmin 1.1vmin;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3vmin;
-  margin: 0;
+  justify-content: center;
+  min-width: 6.5vmin;
+  transition: transform 180ms ease, background 180ms ease;
 }
 
-.vbrancos2,
-.vnulos2,
-.candidatoumum,
-.candidatodoisdois,
-.totalvotos {
-  padding: 0.3vmin 0.9vmin;
-  border-radius: 3px;
-  min-width: 3.5vmin;
-  text-align: center;
+.statCard:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.statLabel {
+  font-size: 0.95vmin;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05vmin;
+  font-weight: 600;
+  margin-bottom: 0.1vmin;
+}
+
+.statValue {
   font-size: 1.5vmin;
-}
-
-.vbrancos2 {
-  color: #000000;
-  background-color: rgb(255, 255, 255);
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.45);
-}
-
-.vnulos2 {
+  font-weight: 800;
   color: #ffffff;
-  background-color: #2e2e2e;
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
 }
 
-.candidatoumum {
-  color: #ffffff;
-  background-color: #00c44f;
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+/* Destaques temáticos dos contadores */
+.cardCand1 .statValue {
+  color: #10b981;
+  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
 }
 
-.candidatodoisdois {
-  color: #ffffff;
-  background-color: #ff4a4a;
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+.cardCand2 .statValue {
+  color: #f43f5e;
+  text-shadow: 0 0 8px rgba(244, 63, 94, 0.4);
 }
 
-.totalvotos {
-  color: #ffffff;
-  background-color: rgb(121, 121, 121);
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+.cardValidos .statValue {
+  color: #38bdf8;
 }
 
-/* Área Direita: Porcentagem e Fotos dos Candidatos */
+/* ==========================================================================
+   CANDIDATOS E PLACAR PERCENTUAL (DIREITA)
+   ========================================================================== */
+
 .porcentagemtopo {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  height: 100%;
-  width: 20%;
-  gap: 0.4vmin;
+  align-items: center;
+  gap: 1.6vmin;
 }
 
-.porcent1,
-.porcent2 {
-  font-size: 1.4vmin;
+.candidatoPill {
   display: flex;
   align-items: center;
-  gap: 0.6vmin;
+  gap: 0.8vmin;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 0.4vmin 1vmin;
+  border-radius: 30px;
+  transition: all 200ms ease;
 }
 
-.porcent1 strong,
-.porcent2 strong {
-  font-size: 1.5vmin;
+.candidatoPill:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.imgpol,
-.imglad {
+.candidatoPillLider {
+  border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.25);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.avatarWrapper {
+  position: relative;
   width: 3vmin;
   height: 3vmin;
-  border-radius: 50%;
-  object-fit: cover;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.35);
 }
 
-/* Barra de Progresso Geral da Apuração */
-.barra1 {
-  background-color: #ffffff;
+.avatar {
   width: 100%;
-  height: 2.5vmin;
-  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.45);
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.candidatoPillLider .avatar {
+  border-color: #fbbf24;
+}
+
+.candInfo {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+}
+
+.candNome {
+  font-size: 1.1vmin;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.candPorcent {
+  font-size: 1.4vmin;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.candPorcentLider {
+  color: #fbbf24;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.4);
+}
+
+/* ==========================================================================
+   BARRA DE PROGRESSO SLIM (ESTILO CYBERPUNK HUD)
+   ========================================================================== */
+
+.barra1 {
+  width: 100%;
+  height: 1.2vmin;
+  background: rgba(0, 0, 0, 0.6);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: visible;
 }
 
 .barra2 {
@@ -188,40 +282,51 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  color: #060606;
-  padding-right: 0.6vmin;
-  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.45);
-  min-width: 4vmin;
+  position: relative;
+  transition: width 800ms cubic-bezier(0.4, 0, 0.2, 1), background-color 500ms ease;
+  box-shadow: 0 0 10px currentColor;
 }
 
 .bonequinho {
-  width: 100%;
+  position: absolute;
+  right: -0.5vmin;
+  top: -2vmin;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  font-size: 1.2vmin;
-  font-weight: bold;
+  gap: 0.3vmin;
+  font-size: 1vmin;
+  font-weight: 900;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0.1vmin 0.5vmin;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
 }
 
 .bonequinho img {
-  height: 1.8vmin;
-  margin-left: 0.5vmin;
+  height: 1.6vmin;
 }
 
-/* Modal / Imagem de Vitória Final */
+/* ==========================================================================
+   SELO DE VITÓRIA FINAL
+   ========================================================================== */
+
 .imagemfinal {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1000;
+  z-index: 9999;
   pointer-events: none;
 }
 
 .imagemfinal img {
-  max-width: 50vmin;
-  max-height: 50vmin;
+  max-width: 45vmin;
+  max-height: 45vmin;
   object-fit: contain;
+  filter: drop-shadow(0 0 30px rgba(0, 0, 0, 0.8));
   animation: zoomSelo 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
