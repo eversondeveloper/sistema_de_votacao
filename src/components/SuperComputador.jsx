@@ -10,7 +10,7 @@ import imgBonequinho2 from '../assets/img/running.png';
 import corruptionMoney from '../assets/audio/money.mp3';
 import festaPolicia from '../assets/audio/somfestapoliciageral.mp3';
 import festaLadrao from '../assets/audio/somfestaladraogeral.mp3';
-import vitPolicia from '../assets/img/seloPolicia.png';
+import vitPolicia from '../assets/img/selopolicia.png';
 import vitLadrao from '../assets/img/seloladrao.png';
 
 function SuperComputador() {
