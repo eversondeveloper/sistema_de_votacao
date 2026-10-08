@@ -1,13 +1,41 @@
-*{
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
   user-select: none;
+  -webkit-user-select: none;
 }
 
-body{
+html,
+body,
+#root {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
-  width: 100%;
-  background-color: rgb(238, 238, 238);
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background-color: #d6d0c2;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.appContainer {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+button,
+input {
+  font-family: inherit;
+  outline: none;
 }

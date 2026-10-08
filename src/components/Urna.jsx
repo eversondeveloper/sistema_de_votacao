@@ -1,459 +1,446 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react/prop-types */
-import styles from './urna.module.css'
-import imgCaveira from "../assets/img/pngegg.png"
-import { useEffect, useState } from 'react'
-import fotoCand1 from '../assets/img/policia.jpg'
-import fotoCand1Vice from '../assets/img/outropolicia.jpg'
-import fotoCand2 from '../assets/img/bandido.jpg'
-import fotoCand2Vice from '../assets/img/outrobandido.jpg'
-import imgBtnPlay from '../assets/img/btnplay.png'
-import imgBtnPause from '../assets/img/btnpause2.png'
-import imgBtnReset from '../assets/img/btnreset.png'
-import somTeclas from '../assets/audio/tecla1.mp3'
-import somComfirma from '../assets/audio/confirma.mp3'
-import somCand1V from '../assets/audio/teclapolicia.wav'
-import somCand2V from '../assets/audio/teclaladrao.wav'
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
+import styles from './urna.module.css';
+import { useVoting } from '../context/VotingContext';
 
+import imgCaveira from '../assets/img/pngegg.png';
+import fotoCand1 from '../assets/img/policia.jpg';
+import fotoCand1Vice from '../assets/img/outropolicia.jpg';
+import fotoCand2 from '../assets/img/bandido.jpg';
+import fotoCand2Vice from '../assets/img/outrobandido.jpg';
+import imgBtnPlay from '../assets/img/btnplay.png';
+import imgBtnPause from '../assets/img/btnpause2.png';
+import imgBtnReset from '../assets/img/btnreset.png';
 
+import somTeclas from '../assets/audio/tecla1.mp3';
+import somConfirmaAudio from '../assets/audio/confirma.mp3';
+import somCand1V from '../assets/audio/teclapolicia.wav';
+import somCand2V from '../assets/audio/teclaladrao.wav';
 
-function Urna(props){
+function Urna() {
+  const {
+    num1Digit,
+    setNum1Digit,
+    num2Digit,
+    setNum2Digit,
+    btnBranco,
+    setBtnBranco,
+    quantVBrancos,
+    setQuantVBrancos,
+    quantVNulos,
+    setQuantVNulos,
+    candidato1,
+    setCandidato1,
+    candidato2,
+    setCandidato2,
+    totalVotosReal,
+    setTotalVotosReal,
+    porcentCand1Real,
+    setPorcentCand1Real,
+    porcentCand2Real,
+    porcentCand1,
+    porcentCand2,
+    totalValidos,
+    comSom,
+  } = useVoting();
 
-    const [estiloBorda, setEstiloBorda] = useState("")
-    const [infos, setInfos] = useState("") 
-    const [infos2, setInfos2] = useState("")
-    const[corPorcentTela1, setCorPorcentTela1] = useState("white")
-    const[corPorcentTela2, setCorPorcentTela2] = useState("white")
-    const[numAuto, setNumAuto] = useState(false)
-    let candidatoNumero = Number(props.num1Digit + props.num2Digit)
-    let nomeCand = ""
-    let partidoCand = ""
-    let nomeViceCand = ""
-    let imageCand = ""
-    let imageCandVice = ""
+  const [numAuto, setNumAuto] = useState(false);
 
-    let sonsTeclasNum = () => {
-        let teclaNum = new Audio(somTeclas)
-        teclaNum.volume = 1
-        teclaNum.play()
+  // Instâncias persistentes de áudio
+  const audioTeclaRef = useRef(new Audio(somTeclas));
+  const audioConfirmaRef = useRef(new Audio(somConfirmaAudio));
+  const audioCand1Ref = useRef(new Audio(somCand1V));
+  const audioCand2Ref = useRef(new Audio(somCand2V));
 
+  const tocarAudio = useCallback((ref) => {
+    if (comSom && ref.current) {
+      ref.current.currentTime = 0;
+      ref.current.play().catch(() => {});
+    }
+  }, [comSom]);
+
+  const candidatoNumero = Number(`${num1Digit}${num2Digit}`);
+  const numeroValido = candidatoNumero === 44 || candidatoNumero === 11;
+  const telaPreenchida = num2Digit !== "";
+
+  // Dados do candidato na tela
+  const dadosCandidato = useMemo(() => {
+    if (candidatoNumero === 44) {
+      return {
+        nome: "Polícia",
+        partido: "Patriótico",
+        vice: "Outro Polícia",
+        foto: fotoCand1,
+        fotoVice: fotoCand1Vice,
+      };
+    }
+    if (candidatoNumero === 11) {
+      return {
+        nome: "Ladrão",
+        partido: "Sociopata",
+        vice: "Outro Ladrão",
+        foto: fotoCand2,
+        fotoVice: fotoCand2Vice,
+      };
+    }
+    return {
+      nome: "",
+      partido: "",
+      vice: "",
+      foto: null,
+      fotoVice: null,
+    };
+  }, [candidatoNumero]);
+
+  // Áudio ao completar o número do candidato
+  useEffect(() => {
+    if (num1Digit === "4" && num2Digit === "4") {
+      tocarAudio(audioCand1Ref);
+    } else if (num1Digit === "1" && num2Digit === "1") {
+      tocarAudio(audioCand2Ref);
+    }
+  }, [num1Digit, num2Digit, tocarAudio]);
+
+  // Teclado numérico
+  const preencheNumeros = (e) => {
+    const valor = e.target.value;
+    if (num1Digit === "" || num2Digit === "") {
+      tocarAudio(audioTeclaRef);
     }
 
-    let sonsConfirme = () => {
-        let confirme = new Audio(somComfirma)
-        confirme.volume = 1
-        confirme.play()
+    if (num1Digit === "") {
+      setNum1Digit(valor);
+    } else if (num2Digit === "") {
+      setNum2Digit(valor);
+    }
+  };
+
+  // Botões de comando da urna
+  const handleVotoBranco = () => {
+    tocarAudio(audioTeclaRef);
+    setBtnBranco(true);
+    setNum1Digit("");
+    setNum2Digit("");
+  };
+
+  const handleCorrige = () => {
+    tocarAudio(audioTeclaRef);
+    setNum1Digit("");
+    setNum2Digit("");
+    setBtnBranco(false);
+  };
+
+  const handleConfirma = () => {
+    tocarAudio(audioConfirmaRef);
+
+    if (btnBranco) {
+      setQuantVBrancos((prev) => prev + 1);
+      setBtnBranco(false);
+      setNum1Digit("");
+      setNum2Digit("");
+      return;
     }
 
-    let somCand1 = () => {
-        let somCand1Votos = new Audio(somCand1V)
-        somCand1Votos.volume = 1
-        somCand1Votos.play()
+    if (num1Digit === "" && num2Digit === "") {
+      alert("Você ainda não digitou nenhum número.");
+      return;
     }
 
-    let somCand2 = () => {
-        let somCand2Votos = new Audio(somCand2V)
-        somCand2Votos.volume = 1
-        somCand2Votos.play()
+    if (candidatoNumero === 44) {
+      setCandidato1((prev) => prev + 1);
+    } else if (candidatoNumero === 11) {
+      setCandidato2((prev) => prev + 1);
+    } else if (telaPreenchida) {
+      setQuantVNulos((prev) => prev + 1);
     }
 
-    useEffect(()=>{
-        if(props.num1Digit == 4 && props.num2Digit == 4){
-            somCand1()
-        }
-        if(props.num1Digit == 1 && props.num2Digit == 1){
-            somCand2()
-        }
-    },[props.num1Digit, props.num2Digit])
+    setNum1Digit("");
+    setNum2Digit("");
+  };
 
+  // Automação da aplicação de votos
+  useEffect(() => {
+    if (!numAuto) return;
 
-    // Função que controla o preenchimento dos números
-
-    let preencheNumeros = (e) => {
-
-        if(props.num1Digit == "" || props.num2Digit == ""){
-            sonsTeclasNum()
-        }
-
-        if(props.num1Digit == ""){
-            return props.setNum1Digit(e.target.value)
-        }else if(props.num1Digit != "" && props.num2Digit == ""){
-            return props.setNum2Digit(e.target.value)
-        }
-
+    const limiteNumerico = Number(totalVotosReal) || 0;
+    if (totalValidos >= limiteNumerico) {
+      setNumAuto(false);
+      return;
     }
 
-    // Função que controla o voto em branco
+    const intervalo = setInterval(() => {
+      const p1Atual = Number(porcentCand1);
+      const metaP1 = Number(porcentCand1Real);
 
-    let votosBrancos = () => {
+      if (p1Atual < metaP1) {
+        setCandidato1((prev) => prev + 1);
+        setNum1Digit("4");
+        setNum2Digit("4");
+      } else {
+        setCandidato2((prev) => prev + 1);
+        setNum1Digit("1");
+        setNum2Digit("1");
+      }
 
-        props.setBtnBranco(true)
+      setTimeout(() => {
+        setNum1Digit("");
+        setNum2Digit("");
+      }, 200);
+    }, 500);
 
-    }
+    return () => clearInterval(intervalo);
+  }, [numAuto, totalValidos, totalVotosReal, porcentCand1, porcentCand1Real, setCandidato1, setCandidato2, setNum1Digit, setNum2Digit]);
 
+  const textoVisivel = (telaPreenchida && numeroValido) ? "#000000" : "transparent";
+  const rodapeVisivel = (btnBranco || telaPreenchida) ? "#000000" : "transparent";
+  const estiloBorda = (btnBranco || telaPreenchida) ? "2px solid #000000" : "none";
 
-    useEffect(()=>{
-        
-        props.num2Digit != "" && candidatoNumero == 44 || candidatoNumero == 11 ? setInfos("#000000") : setInfos("")
-        props.num2Digit != "" && candidatoNumero == 44 || candidatoNumero == 11 ? setEstiloBorda("2px solid #000000") : setEstiloBorda("")
+  return (
+    <div className={styles.corpo}>
+      <div className={styles.header}>
+        {/* Painel de Controles da Votação */}
+        <div className={styles.quantvotos}>
+          <div className={styles.btnsplay}>
+            <button
+              type="button"
+              className={styles.quantvotosbtn}
+              onClick={() => {
+                tocarAudio(audioTeclaRef);
+                setNumAuto((prev) => !prev);
+              }}
+            >
+              <img
+                src={numAuto ? imgBtnPause : imgBtnPlay}
+                alt={numAuto ? "Pausar" : "Iniciar"}
+                title="Inicia ou pausa a simulação automática dos votos."
+              />
+            </button>
 
-        props.btnBranco == true || props.num2Digit != "" ? setInfos2("#000000") : setInfos2("")
-        props.btnBranco == true || props.num2Digit != "" ? setEstiloBorda("2px solid #000000") : setEstiloBorda("")
-    
-    },[props.num2Digit, props.btnBranco])
+            <button
+              type="button"
+              className={styles.resetbtn}
+              onClick={() => {
+                tocarAudio(audioTeclaRef);
+                window.location.reload();
+              }}
+            >
+              <img src={imgBtnReset} alt="Reset" title="Reinicia a aplicação." />
+            </button>
 
-    useEffect(()=>{
-
-
-        
-            if(Number(props.candidato1 + props.candidato2) != 0){
-
-                props.setPorcentCand1((Number(parseFloat(props.candidato1)/Number(props.candidato1 + props.candidato2))*100).toFixed(2))
-            
-            }
-
-            if(Number(props.candidato1 + props.candidato2) != 0){
-                
-                props.setPorcentCand2((Number(parseFloat(props.candidato2)/Number(props.candidato1 + props.candidato2))*100).toFixed(2))
-
-            }
-        
-
-
-    },[props.candidato1, props.candidato2, props.porcentCand1])
-    
-    
-    if(candidatoNumero == 44){
-    
-        nomeCand = "Polícia"
-        partidoCand = "Patriótico"
-        nomeViceCand = "Outro Polícia"
-        imageCand = fotoCand1
-        imageCandVice = fotoCand1Vice
-
-    }else if(candidatoNumero == 11){
-
-        nomeCand = "Ladrão"
-        partidoCand = "Sociopata"
-        nomeViceCand = "Outro Ladrão"
-        imageCand = fotoCand2
-        imageCandVice = fotoCand2Vice
-
-    }
-    
-    function telaInicial(){
-        
-        return <div className={styles.telageral}>
-        <div className={styles.tela1} style={{borderBottom: estiloBorda}}>
-        
-        <div className={styles.tela1esq}>
-
-            <div className={styles.frasetopo}>
-                <p  style={{color: infos}} className={styles.ativo}>Seu voto para</p>
+            <div className={styles.controles}>
+              <span>Polícia</span>
+              <input
+                title="Defina a porcentagem desejada do Candidato 1"
+                type="number"
+                min="0"
+                max="100"
+                className={styles.escolherporcentagem}
+                value={porcentCand1Real}
+                onChange={(e) => setPorcentCand1Real(e.target.value)}
+              />
+              % /
+              <span>Ladrão</span>
+              <div
+                className={styles.escolherporcentagem2}
+                title="Porcentagem calculada do Candidato 2"
+              >
+                {porcentCand2Real}
+              </div>
+              % /
+              <span>Total de votos:</span>
+              <input
+                type="number"
+                min="1"
+                className={styles.escolherlimite}
+                value={totalVotosReal}
+                title="Meta de votos da apuração"
+                onChange={(e) => setTotalVotosReal(e.target.value)}
+              />
             </div>
+          </div>
+        </div>
 
-            <div className={styles.cargo}>
-                <h1>Presidente</h1>
-            </div>
-            
-            <div className={styles.inputs}>
-                <div>
+        {/* Visor da Urna */}
+        <div className={styles.tela}>
+          <div className={styles.telageral}>
+            <div className={styles.tela1} style={{ borderBottom: estiloBorda }}>
+              <div className={styles.tela1esq}>
+                <div className={styles.frasetopo}>
+                  <p style={{ color: textoVisivel }}>Seu voto para</p>
+                </div>
+
+                <div className={styles.cargo}>
+                  <h1>Presidente</h1>
+                </div>
+
+                <div className={styles.inputs}>
+                  <div>
                     <div className={styles.numeropalavra}>
-                        <p  style={{color: infos}} className={styles.ativo}>Número:</p>
+                      <p style={{ color: textoVisivel }}>Número:</p>
                     </div>
                     <div className={styles.numerocandidato}>
-                        <div type="text" name="numero1" className={styles.numero1}>{props.num1Digit}</div>
-                        <div type="text" name="numero2" className={styles.numero2}>{props.num2Digit}</div>
+                      <div className={styles.numero1}>{num1Digit}</div>
+                      <div className={styles.numero2}>{num2Digit}</div>
                     </div>
+                  </div>
                 </div>
+
+                <div className={styles.votoembranco1}>
+                  <div className={styles.nomecandidato}>
+                    <p style={{ color: textoVisivel }}>Nome: {dadosCandidato.nome}</p>
+                  </div>
+                  <div className={styles.partido}>
+                    <p style={{ color: textoVisivel }}>Partido: {dadosCandidato.partido}</p>
+                  </div>
+                  <div className={styles.vicepresidente}>
+                    <p style={{ color: textoVisivel }}>Vice-Presidente: {dadosCandidato.vice}</p>
+                  </div>
+                </div>
+              </div>
+
+              {numeroValido && (
+                <div className={styles.teladir}>
+                  <div className={styles.fotopresidente}>
+                    <div className={styles.fotops}>
+                      <img src={dadosCandidato.foto} alt="Foto Presidente" />
+                    </div>
+                    <p style={{ color: textoVisivel }}>Presidente</p>
+                  </div>
+
+                  <div className={styles.fotovicepresidente}>
+                    <div className={styles.fotoviceps}>
+                      <img src={dadosCandidato.fotoVice} alt="Foto Vice-Presidente" />
+                    </div>
+                    <p style={{ color: textoVisivel }}>Vice-Presidente</p>
+                  </div>
+                </div>
+              )}
+
+              {telaPreenchida && !numeroValido && !btnBranco && (
+                <div className={styles.votonulo}>Voto Nulo</div>
+              )}
+
+              {btnBranco && (
+                <div className={styles.votonulo}>Voto em Branco</div>
+              )}
             </div>
 
-            <div className={styles.votoembranco1}>
-                <div className={styles.nomecandidato}>
-                    <p style={{color: infos}}  className={styles.ativo}>Nome: {nomeCand}</p>
-                </div>
-                <div className={styles.partido}>
-                    <p style={{color: infos}} className={styles.ativo}>Partido: {partidoCand}</p>
-                </div>
-                <div className={styles.vicepresidente}>
-                    <p style={{color: infos}} className={styles.ativo}>Vice-Presidente: {nomeViceCand}</p>
-                </div>
+            <div className={styles.telarodape}>
+              <p style={{ color: rodapeVisivel }}>Aperte a tecla:</p>
+              <p style={{ color: rodapeVisivel }}>CONFIRMA para CONFIRMAR este voto</p>
+              <p style={{ color: rodapeVisivel }}>CORRIGE para REINICIAR este voto</p>
             </div>
-
-        </div>
-        
-        {candidatoNumero == 11 || candidatoNumero == 44 ? <div className={styles.teladir}>
-
-        <div className={styles.fotopresidente}>
-
-            <div className={styles.fotops}>
-                <img src={imageCand} alt="Foto Presidente" />
-            </div>
-            <p  style={{color: infos}} className={styles.ativo}>Presidente</p>
-
+          </div>
         </div>
 
-        <div className={styles.fotovicepresidente}>
-            
-            <div className={styles.fotoviceps}>
-                <img src={imageCandVice} alt="Foto Vice Presidente" />
-            </div>
-            
-            <p  style={{color: infos}} className={styles.ativo}>Vice-Presidente</p>
-        
+        <div className={styles.adesivogeral}>
+          <div className={styles.adesivo}>
+            <h1>ever$cript</h1>
+          </div>
+        </div>
+      </div>
+
+      {/* Painel Central: Total Real */}
+      <div className={styles.totalreal}>
+        <div className={styles.tt}>
+          <p>Brancos</p>
+          <div className={styles.vbrancosreal}>{quantVBrancos}</div>
         </div>
 
-        </div>: ""
-        }
-
-        {props.num2Digit != "" && props.num2Digit != 4 && props.num2Digit != 1 && props.btnBranco == false?     
-            
-            <div className={styles.votonulo}>Voto Nulo</div>: ""
-
-        }
-
-        {props.num2Digit != 4 && props.num2Digit != 1 && props.btnBranco == true ?     
-            
-            <div className={styles.votonulo}>Voto Branco</div>: ""
-
-        }
-
+        <div className={styles.tt}>
+          <p>Nulos</p>
+          <div className={styles.vnulosreal}>{quantVNulos}</div>
         </div>
 
-        <div className={styles.telarodape}>
-            <p  style={{color: props.btnBranco == true || props.num2Digit != "" ? infos2 : infos}} className={styles.ativo}>Aperte a tecla:</p>
-            <p  style={{color: props.btnBranco == true || props.num2Digit != "" ? infos2 : infos}} className={styles.ativo}>CONFIRMA para CONFIRMAR este voto</p>
-            <p  style={{color: props.btnBranco == true || props.num2Digit != "" ? infos2 : infos}} className={styles.ativo}>CORRIGE para REINICIAR este voto</p>
+        <div className={styles.tt}>
+          <p>Polícia</p>
+          <div className={styles.cand1}>{candidato1}</div>
         </div>
+
+        <div className={styles.tt}>
+          <p>Ladrão</p>
+          <div className={styles.cand2}>{candidato2}</div>
+        </div>
+
+        <div className={styles.tt}>
+          <p>Total Váls.</p>
+          <div className={styles.totalcandtela}>{totalValidos}</div>
+        </div>
+
+        <div className={styles.tt}>
+          <p>Polícia</p>
+          <div
+            style={{ backgroundColor: Number(porcentCand1) > 50 ? "yellow" : "white" }}
+            className={styles.totalporcenttela1}
+          >
+            {porcentCand1}%
+          </div>
+        </div>
+
+        <div className={styles.tt}>
+          <p>Ladrão</p>
+          <div
+            style={{ backgroundColor: Number(porcentCand2) > 50 ? "yellow" : "white" }}
+            className={styles.totalporcenttela2}
+          >
+            {porcentCand2}%
+          </div>
+        </div>
+      </div>
+
+      {/* Teclado Físico da Urna */}
+      <div className={styles.botoescontainer}>
+        <div className={styles.nome}>
+          <div className={styles.logo}>
+            <img src={imgCaveira} alt="Caveira de pirata" />
+          </div>
+          <div className={styles.nomedaurna}>
+            <p>Pirataria</p>
+            <p>Eleitoral</p>
+          </div>
+        </div>
+
+        <div className={styles.botoes}>
+          <div className={styles.btn1}>
+            {["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"].map((num) => (
+              <input
+                key={num}
+                type="button"
+                value={num}
+                className={styles[`bton${num}`]}
+                onClick={preencheNumeros}
+                title={`Tecla ${num}`}
+              />
+            ))}
+          </div>
+
+          <div className={styles.btn2}>
+            <input
+              type="button"
+              value="Branco"
+              className={styles.branco}
+              title="Voto em Branco"
+              onClick={handleVotoBranco}
+            />
+            <input
+              type="button"
+              value="Corrige"
+              className={styles.corrige}
+              title="Corrigir Voto"
+              onClick={handleCorrige}
+            />
+            <input
+              type="button"
+              value="Confirma"
+              className={styles.confirma}
+              title="Confirmar Voto"
+              onClick={handleConfirma}
+            />
+          </div>
+        </div>
+      </div>
     </div>
-    }       
-    
-    useEffect(() => {
-
-        if(numAuto == true && Number((props.candidato1 + props.candidato2)) < Number(props.totalVotosReal)){
-            let intervalo = setInterval(()=>{
-            
-                if(props.porcentCand1 < Number(props.porcentCand1Real)){
-                    props.setNum1Digit("4")
-                    props.setNum2Digit("4")
-                }else{
-                    props.setNum1Digit("1")
-                    props.setNum2Digit("1")
-                }
-                
-                if(Number(props.num1Digit) == "4" && Number(props.num2Digit) == "4"){
-                    
-                    props.setCandidato1(props.candidato1 + 1)
-                    props.setNum1Digit("")
-                    props.setNum2Digit("")
-                  
-                }
-                
-                if(Number(props.num1Digit) == "1" && Number(props.num2Digit) == "1"){
-                    
-                    props.setCandidato2(props.candidato2 + 1)
-                    props.setNum1Digit("")
-                    props.setNum2Digit("")
-                    
-                }
-                
-            },500)
-
-
-            return ()=>{clearInterval(intervalo)}   
-        }
-        
-
-    })   
-        
-
-    let controlesVotos = () => {
-        return <div className={styles.quantvotos}>
-        <div className={styles.btnsplay}>
-
-            <div className={styles.quantvotosbtn} onClick={()=>{
-                numAuto == false ? setNumAuto(true) : setNumAuto(false)
-                sonsTeclasNum()
-                }} ><img src={numAuto == true ? imgBtnPause : imgBtnPlay} title="Botão play inicia a aplicação automática dos votos." /></div>
-            {/* <div className={styles.pausevotos} ><img src={imgBtnPause} title="Botão pause pausa a contagem dos votos" /></div> */}
-            <div type="button" value="Reset" className={styles.resetbtn} onClick={()=>{
-                sonsTeclasNum()
-                location.reload()
-                }} ><img src={imgBtnReset} title="Reseta a urna." /></div>
-            {/* <div className={styles.comsom} ><img src={imgSom} title="Botão play inicia a contagem dos votos" onClick={()=>{
-                props.comSom == true ? props.setComSom(false) : props.setComSom(true)
-                }} /></div> */}
-            <div className={styles.controles}>
-            Polícia<input title='Digite a porcentagem do candidato 1.' type="number" name="porcentagem" className={styles.escolherporcentagem} value={props.porcentCand1Real} onChange={(e)=>{
-                props.setPorcentCand1Real(e.target.value)
-                props.setPorcentCand2Real(100-e.target.value)
-                
-            }
-        } />%   /
-            Ladrão<div type="number" name="porcentagem" className={styles.escolherporcentagem2} title='Porcentagem do candidato 2.' >{props.porcentCand2Real}</div>%   
-            /   Quantidade de votos<input type="number" name="limite" className={styles.escolherlimite} value={props.totalVotosReal} title="Digite o total de votos que deseja, sem os pontos." onChange={(e)=>{props.setTotalVotosReal(e.target.value)}} />
-            </div>
-        </div>
-
-    </div>
-    }
-
-    useEffect(()=>{
-
-        if(props.porcentCand1 > 50){
-            setCorPorcentTela1("yellow")
-        }else{
-            setCorPorcentTela1("white")
-        }
-
-    },[props.porcentCand1])
-
-    useEffect(()=>{
-
-        if(props.porcentCand2 > 50){
-            setCorPorcentTela2("yellow")
-        }else{
-            setCorPorcentTela2("white")
-        }
-
-    },[props.porcentCand2])
-
-    let btnConfirma = () => {
-
-        sonsConfirme()
-            
-        props.btnBranco == true ? props.setQuantVBrancos(props.quantVBrancos + 1) : ""
-        
-        if(Number(props.num1Digit) == "" && Number(props.num2Digit) == "" && props.btnBranco == false){
-
-            alert("Você ainda não digitou nenhum número.")
-
-        }else if(Number(props.num1Digit) == 4 && Number(props.num2Digit) == 4){
-
-            props.setCandidato1(props.candidato1 + 1)
-
-        }else if(Number(props.num1Digit) == 1 && Number(props.num2Digit) == 1){
-
-            props.setCandidato2(props.candidato2 + 1)
-
-        }else{
-
-            props.btnBranco == false ? Number(props.num1Digit) != "" && Number(props.num2Digit) != "" ? props.setQuantVNulos(props.quantVNulos + 1) : "" : ""
-
-        }
-
-        props.btnBranco == true ? props.setBtnBranco(false) : ""
-
-        props.setNum1Digit("")
-        props.setNum2Digit("")
-
-    }
-
-
-
-
-    return <div className={styles.corpo}>
-
-        <div className={styles.header}>
-
-            {controlesVotos()}
-
-                <div className={styles.tela}>
-
-                    {telaInicial()}
-
-                </div>
-
-                <div className={styles.adesivogeral}>
-                    <div className={styles.adesivo}>
-                        <h1>ever$cript</h1>
-                    </div>  
-                </div>                
-
-        </div>
-
-        <div className={styles.totalreal}>
-
-            <div className="tt">
-                <p>Brancos</p><div title='Quantidade de votos brancos.' className={styles.vbrancosreal}>{props.quantVBrancos}</div>
-            </div>
-            
-            <div className="tt">
-                <p>Nulos</p><div title='Quantidade de votos nulos.' className={styles.vnulosreal}>{props.quantVNulos}</div>
-            </div>
-            
-            <div className="tt">
-                <p>Polícia</p><div title='Quantidade de votos do candidato 1.' className={styles.cand1}>{props.candidato1}</div>
-            </div>
-            
-            <div className="tt">
-                <p>Ladrão</p><div  title='Quantidade de votos do candidato 2.' className={styles.cand2}>{props.candidato2}</div>
-            </div>
-            
-            <div className="tt">
-                <p>Total Váls.</p><div className={styles.totalcandtela} title='Total de votos válidos.' >{Number(props.candidato1) + Number(props.candidato2)}</div>
-            </div>
-
-            <div className="tt">
-                <p>Polícia</p><div style={{backgroundColor: corPorcentTela1}} className={styles.totalporcenttela1} title='Porcentagem do candidato 1.' >{props.porcentCand1}%</div>
-            </div>
-            
-            <div className="tt">
-                <p>Ladrão</p><div style={{backgroundColor: corPorcentTela2}} className={styles.totalporcenttela2} title='Porcentagem do candidato 2.' >{props.porcentCand2}%</div>
-            </div>
-        
-        </div>
-
-
-                <div className={styles.botoescontainer}>
-
-                <div className={styles.nome}>
-
-                    <div className={styles.logo}>
-                        <img src={imgCaveira} alt="Caveira de pirata" />
-                    </div>
-
-                    <div className={styles.nomedaurna}>
-                        <p>Pirataria</p>
-                        <p>Eleitoral</p>
-                    </div>
-
-                </div>
-
-                <div className={styles.botoes}>
-                    <div className={styles.btn1}>
-                    
-                        <input type="button" value="1" className={styles.bton1} onClick={preencheNumeros} title='Tecla 1' />
-                        <input type="button" value="2" className={styles.bton2} onClick={preencheNumeros} title='Tecla 2' />
-                        <input type="button" value="3" className={styles.bton3} onClick={preencheNumeros} title='Tecla 3' />
-                        <input type="button" value="4" className={styles.bton4} onClick={preencheNumeros} title='Tecla 4' />
-                        <input type="button" value="5" className={styles.bton5} onClick={preencheNumeros} title='Tecla 5' />
-                        <input type="button" value="6" className={styles.bton6} title='Tecla 6' onClick={preencheNumeros} />
-                        <input type="button" value="7" className={styles.bton7} onClick={preencheNumeros} title='Tecla 7' />
-                        <input type="button" value="8" className={styles.bton8} onClick={preencheNumeros} title='Tecla 8' />
-                        <input type="button" value="9" className={styles.bton9} onClick={preencheNumeros} title='Tecla 9' />
-                        <input type="button" value="0" className={styles.bton0} onClick={preencheNumeros} title='Tecla 0' />
-
-                    </div>
-
-                    <div className={styles.btn2}>
-                        <input type="button" value="Branco" className={styles.branco} title="Botão voto em branco" onClick={()=>{
-                            votosBrancos()
-                        }} />
-                        <input type="button" value="corrige" className={styles.corrige} title="Botão corrige" onClick={()=>{
-                            props.setNum1Digit("")
-                            props.setNum2Digit("")
-                            props.btnBranco == true ? props.setBtnBranco(false) : ""
-                            }} />
-                        <input type="button" value="confirma" className={styles.confirma} title="Botão confirma" onClick={()=>{
-                            btnConfirma()
-                        }} />
-                    </div>
-
-                </div>
-                </div>
-            </div>
-            
+  );
 }
 
-export default Urna
+export default Urna;
