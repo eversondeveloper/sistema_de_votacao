@@ -10,31 +10,32 @@ import imgBonequinho2 from '../assets/img/running.png';
 import corruptionMoney from '../assets/audio/money.mp3';
 import festaPolicia from '../assets/audio/somfestapoliciageral.mp3';
 import festaLadrao from '../assets/audio/somfestaladraogeral.mp3';
-import vitPolicia from '../assets/img/selopolicia.png';
+import vitPolicia from '../assets/img/seloPolicia.png';
 import vitLadrao from '../assets/img/seloladrao.png';
 
 function SuperComputador() {
   const {
     quantVBrancos,
     quantVNulos,
+    quantAbstencoes,
     candidato1,
     candidato2,
-    totalVotosReal,
+    totalValidosEsperados,
     comSom,
+    setVencedor,
   } = useVoting();
 
   const [candidato1SP, setCandidato1SP] = useState(0);
   const [candidato2SP, setCandidato2SP] = useState(0);
   const [corruption, setCorruption] = useState(false);
 
-  // Instâncias de áudio persistentes
   const audioCorruptionRef = useRef(new Audio(corruptionMoney));
   const audioFestaPRef = useRef(new Audio(festaPolicia));
   const audioFestaLRef = useRef(new Audio(festaLadrao));
   const finalAudioTocandoRef = useRef(false);
 
   const totalValidosSP = candidato1SP + candidato2SP;
-  const limiteSP = Number(totalVotosReal) || 1;
+  const limiteSP = Number(totalValidosEsperados) || 1;
 
   const porcentGeralSP = useMemo(() => {
     const calc = Math.floor((totalValidosSP / limiteSP) * 100);
@@ -51,7 +52,6 @@ function SuperComputador() {
     return ((candidato2SP / totalValidosSP) * 100).toFixed(2);
   }, [candidato2SP, totalValidosSP]);
 
-  // Listener para o botão do meio do mouse (roda)
   useEffect(() => {
     const handleMouseDown = (event) => {
       if (event.button === 1) {
@@ -66,7 +66,6 @@ function SuperComputador() {
     };
   }, []);
 
-  // Efeito sonoro da fraude
   useEffect(() => {
     if (corruption && comSom) {
       audioCorruptionRef.current.currentTime = 0;
@@ -74,7 +73,6 @@ function SuperComputador() {
     }
   }, [corruption, comSom]);
 
-  // Algoritmo de desvio do voto
   const ultimoVotoCand1Ref = useRef(candidato1);
   useEffect(() => {
     if (candidato1 > ultimoVotoCand1Ref.current) {
@@ -110,43 +108,44 @@ function SuperComputador() {
     }
   }, [candidato2]);
 
-  // Celebração final
+  // Aciona a vitória, bloqueia a urna e toca o áudio festivo
   useEffect(() => {
-    if (porcentGeralSP === 100 && !finalAudioTocandoRef.current && comSom) {
+    if (porcentGeralSP === 100 && !finalAudioTocandoRef.current) {
       finalAudioTocandoRef.current = true;
-      const timer = setTimeout(() => {
-        if (Number(porcentCand1SP) > Number(porcentCand2SP)) {
-          audioFestaPRef.current.play().catch(() => {});
-        } else if (Number(porcentCand2SP) > Number(porcentCand1SP)) {
-          audioFestaLRef.current.play().catch(() => {});
+
+      const p1 = Number(porcentCand1SP);
+      const p2 = Number(porcentCand2SP);
+
+      if (p1 > p2) {
+        setVencedor({ nome: "Candidato 1", selo: vitPolicia });
+        if (comSom) {
+          setTimeout(() => {
+            audioFestaPRef.current.play().catch(() => {});
+          }, 500);
         }
-      }, 500);
-
-      return () => clearTimeout(timer);
+      } else if (p2 > p1) {
+        setVencedor({ nome: "Candidato 2", selo: vitLadrao });
+        if (comSom) {
+          setTimeout(() => {
+            audioFestaLRef.current.play().catch(() => {});
+          }, 500);
+        }
+      }
     }
-  }, [porcentGeralSP, porcentCand1SP, porcentCand2SP, comSom]);
-
-  // Imagem de vitória
-  const seloFinal = useMemo(() => {
-    if (porcentGeralSP !== 100) return null;
-    if (Number(porcentCand1SP) > 50) return vitPolicia;
-    if (Number(porcentCand2SP) > 50) return vitLadrao;
-    return null;
-  }, [porcentGeralSP, porcentCand1SP, porcentCand2SP]);
+  }, [porcentGeralSP, porcentCand1SP, porcentCand2SP, comSom, setVencedor]);
 
   const liderCand1 = Number(porcentCand1SP) > 50;
   const liderCand2 = Number(porcentCand2SP) > 50;
 
   const corBarra = useMemo(() => {
-    if (Number(porcentCand1SP) > 50) return "#10b981"; // Verde neon
-    if (Number(porcentCand1SP) === 50) return "#64748b"; // Neutro
-    return "#f43f5e"; // Vermelho neon
+    if (Number(porcentCand1SP) > 50) return "#10b981";
+    if (Number(porcentCand1SP) === 50) return "#64748b";
+    return "#f43f5e";
   }, [porcentCand1SP]);
 
   return (
     <div className={styles.porcentagem}>
       <div className={styles.result}>
-        {/* LOGO & GATILHO */}
         <div className={styles.logodindin}>
           <div
             className={styles.logo}
@@ -166,7 +165,6 @@ function SuperComputador() {
           </span>
         </div>
 
-        {/* CARDS DE ESTATÍSTICA SLIM */}
         <div className={styles.estatisticas}>
           <div className={styles.resultado}>
             <div className={styles.statCard}>
@@ -179,13 +177,18 @@ function SuperComputador() {
               <span className={styles.statValue}>{quantVNulos}</span>
             </div>
 
+            <div className={styles.statCard}>
+              <span className={styles.statLabel}>Abstenções</span>
+              <span className={styles.statValue}>{quantAbstencoes}</span>
+            </div>
+
             <div className={`${styles.statCard} ${styles.cardCand1}`}>
-              <span className={styles.statLabel}>Polícia</span>
+              <span className={styles.statLabel}>Candidato 1</span>
               <span className={styles.statValue}>{candidato1SP}</span>
             </div>
 
             <div className={`${styles.statCard} ${styles.cardCand2}`}>
-              <span className={styles.statLabel}>Ladrão</span>
+              <span className={styles.statLabel}>Candidato 2</span>
               <span className={styles.statValue}>{candidato2SP}</span>
             </div>
 
@@ -196,14 +199,13 @@ function SuperComputador() {
           </div>
         </div>
 
-        {/* CANDIDATOS E PORCENTAGEM */}
         <div className={styles.porcentagemtopo}>
           <div className={`${styles.candidatoPill} ${liderCand1 ? styles.candidatoPillLider : ''}`}>
             <div className={styles.avatarWrapper}>
-              <img src={imgPolicia1} alt="Polícia" className={styles.avatar} />
+              <img src={imgPolicia1} alt="Candidato 1" className={styles.avatar} />
             </div>
             <div className={styles.candInfo}>
-              <span className={styles.candNome}>44 - Polícia</span>
+              <span className={styles.candNome}>44 - Candidato 1</span>
               <span className={`${styles.candPorcent} ${liderCand1 ? styles.candPorcentLider : ''}`}>
                 {porcentCand1SP}%
               </span>
@@ -212,10 +214,10 @@ function SuperComputador() {
 
           <div className={`${styles.candidatoPill} ${liderCand2 ? styles.candidatoPillLider : ''}`}>
             <div className={styles.avatarWrapper}>
-              <img src={imgLadrao1} alt="Ladrão" className={styles.avatar} />
+              <img src={imgLadrao1} alt="Candidato 2" className={styles.avatar} />
             </div>
             <div className={styles.candInfo}>
-              <span className={styles.candNome}>11 - Ladrão</span>
+              <span className={styles.candNome}>11 - Candidato 2</span>
               <span className={`${styles.candPorcent} ${liderCand2 ? styles.candPorcentLider : ''}`}>
                 {porcentCand2SP}%
               </span>
@@ -224,7 +226,6 @@ function SuperComputador() {
         </div>
       </div>
 
-      {/* BARRA DE PROGRESSO SLIM */}
       <div className={styles.barra1}>
         <div
           className={styles.barra2}
@@ -243,13 +244,6 @@ function SuperComputador() {
           </div>
         </div>
       </div>
-
-      {/* SELO DE VITÓRIA */}
-      {seloFinal && (
-        <div className={styles.imagemfinal}>
-          <img src={seloFinal} alt="Selo de Vitória" />
-        </div>
-      )}
     </div>
   );
 }
