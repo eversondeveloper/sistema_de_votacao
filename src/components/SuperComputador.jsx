@@ -72,7 +72,7 @@ function SuperComputador() {
   useEffect(() => {
     if (corruption && comSom) {
       audioCorruptionRef.current.currentTime = 0;
-      audioCorruptionRef.current.play().catch(() => {});
+      audioCorruptionRef.current.play().catch(() => { });
     }
   }, [corruption, comSom]);
 
@@ -118,9 +118,9 @@ function SuperComputador() {
       finalAudioTocandoRef.current = true;
       const timer = setTimeout(() => {
         if (Number(porcentCand1SP) > Number(porcentCand2SP)) {
-          audioFestaPRef.current.play().catch(() => {});
+          audioFestaPRef.current.play().catch(() => { });
         } else if (Number(porcentCand2SP) > Number(porcentCand1SP)) {
-          audioFestaLRef.current.play().catch(() => {});
+          audioFestaLRef.current.play().catch(() => { });
         }
       }, 500);
 
