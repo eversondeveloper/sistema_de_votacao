@@ -1,184 +1,287 @@
-/* Painel Superior do SuperComputador */
+/* Painel Superior do SuperComputador - Dark & Clean Theme */
 .porcentagem {
   position: absolute;
   top: 0;
   left: 0;
-  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.459)), url('../assets/img/backimage.jpg');
-  background-position: center;
-  background-size: cover;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: bold;
-  color: #ffffff;
   width: 100%;
   height: 17vh;
   max-height: 17vh;
+  box-sizing: border-box;
+  background: #0d1117;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(20, 32, 48, 0.7) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(30, 24, 40, 0.6) 0px, transparent 50%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   user-select: none;
   z-index: 10;
-  box-sizing: border-box;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+/* Linha Superior: Grid travado */
 .result {
   width: 100%;
+  height: calc(100% - 2vmin);
   display: flex;
-  justify-content: space-around;
   align-items: center;
-  height: calc(100% - 2.5vmin);
-  padding: 0 1.5vmin;
+  justify-content: space-between;
+  padding: 0.6vmin 1.8vmin;
   box-sizing: border-box;
+  gap: 1.2vmin;
 }
 
-/* Área Esquerda: Logo e Botão de Fraude */
+/* --- SEÇÃO 1: LOGOTIPO --- */
 .logodindin {
-  width: 18%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 14vmin;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.4vmin;
+  font-size: 1.5vmin;
+  font-weight: 800;
+  letter-spacing: 0.1vmin;
+  color: #8b949e;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.5vmin 0.8vmin;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: all 200ms ease;
+  white-space: nowrap;
+}
+
+.logo:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #f0f6fc;
+}
+
+.dindin {
+  font-weight: 900;
+  transition: color 250ms ease;
+}
+
+/* --- SEÇÃO 2: ESTATÍSTICAS COM 6 COLUNAS TRAVADAS --- */
+.estatisticas {
+  flex: 1;
+  max-width: 54vmin;
+  min-width: 54vmin;
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100%;
 }
 
-.logo {
-  color: rgb(210, 210, 210);
-  font-size: 2.2vmin;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  animation: corlogo 2s infinite alternate ease-in-out;
-}
-
-@keyframes corlogo {
-  from {
-    color: rgb(150, 150, 150);
-  }
-  to {
-    color: rgb(240, 240, 240);
-  }
-}
-
-.dindin {
-  color: #00c44f;
-  margin-right: 0.4vmin;
-  transition: color 200ms ease;
-}
-
-.dindin:hover {
-  color: #007e32;
-}
-
-/* Área Central: Estatísticas de Votos */
-.estatisticas {
-  padding: 0 1.5vmin;
-  width: 58%;
-  height: 80%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-left: #7a7a7a solid 2px;
-  border-right: #7a7a7a solid 2px;
-  box-sizing: border-box;
-}
-
 .resultado {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(6, 8.2vmin);
+  gap: 0.6vmin;
   width: 100%;
+  justify-content: center;
   align-items: center;
 }
 
-.resultado p {
-  font-size: 1.4vmin;
-  font-weight: bold;
+/* Caixas de contadores com dimensões cravadas */
+.resultado > div {
+  width: 8.2vmin;
+  height: 5.6vmin;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3vmin;
-  margin: 0;
+  justify-content: center;
+  background: rgba(22, 27, 34, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 6px;
+  padding: 0.3vmin 0.4vmin;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
+.resultado p {
+  font-size: 0.9vmin;
+  font-weight: 600;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.04vmin;
+  margin: 0 0 0.3vmin 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Números monoespaçados tabulares */
+.vabstencoes2,
 .vbrancos2,
 .vnulos2,
 .candidatoumum,
 .candidatodoisdois,
 .totalvotos {
-  padding: 0.3vmin 0.9vmin;
-  border-radius: 3px;
-  min-width: 3.5vmin;
-  text-align: center;
   font-size: 1.5vmin;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  text-align: center;
+  width: 100%;
+  white-space: nowrap;
+  background: transparent;
+  box-shadow: none;
+}
+
+.vabstencoes2 {
+  color: #a5d6ff;
 }
 
 .vbrancos2 {
-  color: #000000;
-  background-color: rgb(255, 255, 255);
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.45);
+  color: #e6edf3;
 }
 
 .vnulos2 {
-  color: #ffffff;
-  background-color: #2e2e2e;
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+  color: #8b949e;
 }
 
 .candidatoumum {
-  color: #ffffff;
-  background-color: #00c44f;
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+  color: #3fb950;
 }
 
 .candidatodoisdois {
-  color: #ffffff;
-  background-color: #ff4a4a;
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+  color: #f85149;
+}
+
+/* Destaque fixo para Válidos */
+.totalvotosvalidos {
+  background: rgba(31, 111, 235, 0.1) !important;
+  border-color: rgba(56, 139, 253, 0.35) !important;
+}
+
+.totalvotosvalidos p {
+  color: #58a6ff !important;
 }
 
 .totalvotos {
-  color: #ffffff;
-  background-color: rgb(121, 121, 121);
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.65);
+  color: #79c0ff;
 }
 
-/* Área Direita: Porcentagem e Fotos dos Candidatos */
+/* --- SEÇÃO 3: CARDS DOS CANDIDATOS COM LARGURA FIXA --- */
 .porcentagemtopo {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  height: 100%;
-  width: 20%;
-  gap: 0.4vmin;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1vmin;
+  flex-shrink: 0;
+  width: 33vmin;
 }
 
-.porcent1,
-.porcent2 {
-  font-size: 1.4vmin;
+.candCard {
+  width: 15.8vmin;
+  min-width: 15.8vmin;
+  max-width: 15.8vmin;
+  height: 5.8vmin;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: 0.6vmin;
+  gap: 0.8vmin;
+  background: rgba(22, 27, 34, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.4vmin 0.8vmin;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  position: relative;
+  overflow: hidden;
 }
 
-.porcent1 strong,
-.porcent2 strong {
-  font-size: 1.5vmin;
+.candLider {
+  border-color: rgba(227, 179, 65, 0.6);
+  background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(227, 179, 65, 0.08) 100%);
+  box-shadow: 0 0 10px rgba(227, 179, 65, 0.25);
 }
 
 .imgpol,
 .imglad {
-  width: 3vmin;
-  height: 3vmin;
+  width: 3.8vmin;
+  min-width: 3.8vmin;
+  height: 3.8vmin;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  flex-shrink: 0;
 }
 
-/* Barra de Progresso Geral da Apuração */
-.barra1 {
-  background-color: #ffffff;
+.candLider .imgpol,
+.candLider .imglad {
+  border-color: #e3b341;
+}
+
+.candInfo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: calc(100% - 4.6vmin);
+  overflow: hidden;
+}
+
+.candHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  height: 2.5vmin;
-  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.45);
+  height: 1.5vmin;
+}
+
+.candNome {
+  font-size: 1.05vmin;
+  font-weight: 700;
+  color: #8b949e;
+  letter-spacing: 0.04vmin;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badgeLider {
+  font-size: 0.8vmin;
+  font-weight: 900;
+  color: #0d1117;
+  background: #e3b341;
+  padding: 0.1vmin 0.4vmin;
+  border-radius: 3px;
+  letter-spacing: 0.05vmin;
+  line-height: 1;
+}
+
+.candValor {
+  font-size: 2vmin;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  color: #f0f6fc;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.candLider .candValor {
+  color: #e3b341;
+  text-shadow: 0 0 8px rgba(227, 179, 65, 0.35);
+}
+
+/* --- SEÇÃO 4: BARRA DE PROGRESSO --- */
+.barra1 {
+  width: 100%;
+  height: 1.8vmin;
+  background: #161b22;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  position: relative;
   display: flex;
   align-items: center;
 }
@@ -188,24 +291,27 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  color: #060606;
-  padding-right: 0.6vmin;
-  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.45);
+  padding-right: 0.8vmin;
   min-width: 4vmin;
+  box-sizing: border-box;
 }
 
 .bonequinho {
-  width: 100%;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  font-size: 1.2vmin;
-  font-weight: bold;
+  gap: 0.4vmin;
+  font-size: 1vmin;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
 }
 
 .bonequinho img {
-  height: 1.8vmin;
-  margin-left: 0.5vmin;
+  height: 1.3vmin;
+  object-fit: contain;
 }
 
 /* Modal / Imagem de Vitória Final */
@@ -219,15 +325,16 @@
 }
 
 .imagemfinal img {
-  max-width: 50vmin;
-  max-height: 50vmin;
+  max-width: 45vmin;
+  max-height: 45vmin;
   object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.8));
   animation: zoomSelo 400ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes zoomSelo {
   from {
-    transform: scale(0.2);
+    transform: scale(0.3);
     opacity: 0;
   }
   to {

@@ -33,11 +33,19 @@ function Urna() {
     setCandidato1,
     candidato2,
     setCandidato2,
+    quantAbstencoes,
+    setQuantAbstencoes,
     totalVotosReal,
     setTotalVotosReal,
     porcentCand1Real,
     setPorcentCand1Real,
     porcentCand2Real,
+    porcentAbstencaoMeta,
+    setPorcentAbstencaoMeta,
+    porcentBrancosMeta,
+    setPorcentBrancosMeta,
+    porcentNulosMeta,
+    setPorcentNulosMeta,
     porcentCand1,
     porcentCand2,
     totalValidos,
@@ -45,6 +53,7 @@ function Urna() {
   } = useVoting();
 
   const [numAuto, setNumAuto] = useState(false);
+  const [sistemaTravado, setSistemaTravado] = useState(false);
 
   // Instâncias persistentes de áudio
   const audioTeclaRef = useRef(new Audio(somTeclas));
@@ -103,6 +112,7 @@ function Urna() {
 
   // Teclado numérico
   const preencheNumeros = (e) => {
+    if (sistemaTravado) return;
     const valor = e.target.value;
     if (num1Digit === "" || num2Digit === "") {
       tocarAudio(audioTeclaRef);
@@ -117,6 +127,7 @@ function Urna() {
 
   // Botões de comando da urna
   const handleVotoBranco = () => {
+    if (sistemaTravado) return;
     tocarAudio(audioTeclaRef);
     setBtnBranco(true);
     setNum1Digit("");
@@ -124,6 +135,7 @@ function Urna() {
   };
 
   const handleCorrige = () => {
+    if (sistemaTravado) return;
     tocarAudio(audioTeclaRef);
     setNum1Digit("");
     setNum2Digit("");
@@ -131,6 +143,7 @@ function Urna() {
   };
 
   const handleConfirma = () => {
+    if (sistemaTravado) return;
     tocarAudio(audioConfirmaRef);
 
     if (btnBranco) {
@@ -158,17 +171,41 @@ function Urna() {
     setNum2Digit("");
   };
 
+  // Trava o sistema ao atingir a apuração completa
+  useEffect(() => {
+    const limiteNumerico = Number(totalVotosReal) || 0;
+    if (totalValidos >= limiteNumerico && limiteNumerico > 0) {
+      setNumAuto(false);
+      setSistemaTravado(true);
+    }
+  }, [totalValidos, totalVotosReal]);
+
   // Automação da aplicação de votos
   useEffect(() => {
-    if (!numAuto) return;
+    if (!numAuto || sistemaTravado) return;
 
     const limiteNumerico = Number(totalVotosReal) || 0;
     if (totalValidos >= limiteNumerico) {
       setNumAuto(false);
+      setSistemaTravado(true);
       return;
     }
 
     const intervalo = setInterval(() => {
+      const metaAbs = Math.floor((totalValidos * Number(porcentAbstencaoMeta)) / 100);
+      const metaBra = Math.floor((totalValidos * Number(porcentBrancosMeta)) / 100);
+      const metaNul = Math.floor((totalValidos * Number(porcentNulosMeta)) / 100);
+
+      if (quantAbstencoes < metaAbs) {
+        setQuantAbstencoes((prev) => prev + 1);
+      }
+      if (quantVBrancos < metaBra) {
+        setQuantVBrancos((prev) => prev + 1);
+      }
+      if (quantVNulos < metaNul) {
+        setQuantVNulos((prev) => prev + 1);
+      }
+
       const p1Atual = Number(porcentCand1);
       const metaP1 = Number(porcentCand1Real);
 
@@ -185,11 +222,31 @@ function Urna() {
       setTimeout(() => {
         setNum1Digit("");
         setNum2Digit("");
-      }, 200);
-    }, 500);
+      }, 150);
+    }, 400);
 
     return () => clearInterval(intervalo);
-  }, [numAuto, totalValidos, totalVotosReal, porcentCand1, porcentCand1Real, setCandidato1, setCandidato2, setNum1Digit, setNum2Digit]);
+  }, [
+    numAuto,
+    sistemaTravado,
+    totalValidos,
+    totalVotosReal,
+    porcentCand1,
+    porcentCand1Real,
+    porcentAbstencaoMeta,
+    porcentBrancosMeta,
+    porcentNulosMeta,
+    quantAbstencoes,
+    quantVBrancos,
+    quantVNulos,
+    setCandidato1,
+    setCandidato2,
+    setQuantAbstencoes,
+    setQuantVBrancos,
+    setQuantVNulos,
+    setNum1Digit,
+    setNum2Digit,
+  ]);
 
   const textoVisivel = (telaPreenchida && numeroValido) ? "#000000" : "transparent";
   const rodapeVisivel = (btnBranco || telaPreenchida) ? "#000000" : "transparent";
@@ -204,7 +261,10 @@ function Urna() {
             <button
               type="button"
               className={styles.quantvotosbtn}
+              disabled={sistemaTravado}
+              style={{ opacity: sistemaTravado ? 0.4 : 1, cursor: sistemaTravado ? 'not-allowed' : 'pointer' }}
               onClick={() => {
+                if (sistemaTravado) return;
                 tocarAudio(audioTeclaRef);
                 setNumAuto((prev) => !prev);
               }}
@@ -224,7 +284,7 @@ function Urna() {
                 window.location.reload();
               }}
             >
-              <img src={imgBtnReset} alt="Reset" title="Reinicia a aplicação." />
+              <img src={imgBtnReset} alt="Reset" title="Reinicia e destrava a aplicação." />
             </button>
 
             <div className={styles.controles}>
@@ -234,6 +294,7 @@ function Urna() {
                 type="number"
                 min="0"
                 max="100"
+                disabled={sistemaTravado}
                 className={styles.escolherporcentagem}
                 value={porcentCand1Real}
                 onChange={(e) => setPorcentCand1Real(e.target.value)}
@@ -247,13 +308,53 @@ function Urna() {
                 {porcentCand2Real}
               </div>
               % /
-              <span>Total de votos:</span>
+              <span>Abstenção(%)</span>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                disabled={sistemaTravado}
+                className={styles.escolherporcentagem}
+                value={porcentAbstencaoMeta}
+                title="Meta de abstenções"
+                onChange={(e) => setPorcentAbstencaoMeta(e.target.value)}
+              />
+              /
+              <span>Brancos(%)</span>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                disabled={sistemaTravado}
+                className={styles.escolherporcentagem}
+                value={porcentBrancosMeta}
+                title="Meta de votos brancos"
+                onChange={(e) => setPorcentBrancosMeta(e.target.value)}
+              />
+              /
+              <span>Nulos(%)</span>
+              <input
+                type="number"
+                step="0.1"
+                min="0"
+                max="100"
+                disabled={sistemaTravado}
+                className={styles.escolherporcentagem}
+                value={porcentNulosMeta}
+                title="Meta de votos nulos"
+                onChange={(e) => setPorcentNulosMeta(e.target.value)}
+              />
+              /
+              <span>Total:</span>
               <input
                 type="number"
                 min="1"
+                disabled={sistemaTravado}
                 className={styles.escolherlimite}
                 value={totalVotosReal}
-                title="Meta de votos da apuração"
+                title="Meta de votos válidos da apuração"
                 onChange={(e) => setTotalVotosReal(e.target.value)}
               />
             </div>
@@ -340,8 +441,13 @@ function Urna() {
         </div>
       </div>
 
-      {/* Painel Central: Total Real */}
+      {/* Painel Central: Total Real com Abstenção Formatada */}
       <div className={styles.totalreal}>
+        <div className={styles.tt}>
+          <p>Abstenção</p>
+          <div className={styles.vabstenreal}>{quantAbstencoes}</div>
+        </div>
+
         <div className={styles.tt}>
           <p>Brancos</p>
           <div className={styles.vbrancosreal}>{quantVBrancos}</div>
@@ -388,8 +494,15 @@ function Urna() {
         </div>
       </div>
 
-      {/* Teclado Físico da Urna */}
-      <div className={styles.botoescontainer}>
+      {/* Teclado Físico da Urna (trava ao completar 100%) */}
+      <div
+        className={styles.botoescontainer}
+        style={{
+          opacity: sistemaTravado ? 0.45 : 1,
+          pointerEvents: sistemaTravado ? 'none' : 'auto',
+          transition: 'opacity 300ms ease'
+        }}
+      >
         <div className={styles.nome}>
           <div className={styles.logo}>
             <img src={imgCaveira} alt="Caveira de pirata" />
