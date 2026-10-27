@@ -35,8 +35,9 @@ function Urna() {
     setCandidato2,
     quantAbstencoes,
     setQuantAbstencoes,
+    eleitoresTotais,
+    setEleitoresTotais,
     totalVotosReal,
-    setTotalVotosReal,
     porcentCand1Real,
     setPorcentCand1Real,
     porcentCand2Real,
@@ -164,7 +165,7 @@ function Urna() {
     setNum2Digit("");
   };
 
-  // Trava o sistema ao atingir o limite exato
+  // Trava o sistema ao atingir a quantidade calculada de votos válidos
   useEffect(() => {
     const limiteNumerico = Number(totalVotosReal) || 0;
     if (totalValidos >= limiteNumerico && limiteNumerico > 0) {
@@ -173,42 +174,38 @@ function Urna() {
     }
   }, [totalValidos, totalVotosReal]);
 
-  // Simulação com cota matemática exata
+  // Simulação com base no total de eleitores e cotas exatas de válidos
   useEffect(() => {
     if (!numAuto || sistemaTravado) return;
 
-    const limiteTotal = Number(totalVotosReal) || 100;
-    if (totalValidos >= limiteTotal) {
+    const limiteValidos = Number(totalVotosReal) || 0;
+    if (totalValidos >= limiteValidos) {
       setNumAuto(false);
       setSistemaTravado(true);
       return;
     }
 
     const intervalo = setInterval(() => {
-      // 1. Atualiza métricas secundárias proporcionais
-      const metaAbs = Math.round((totalValidos * Number(porcentAbstencaoMeta)) / 100);
-      const metaBra = Math.round((totalValidos * Number(porcentBrancosMeta)) / 100);
-      const metaNul = Math.round((totalValidos * Number(porcentNulosMeta)) / 100);
+      const baseEleitores = Number(eleitoresTotais) || 1;
+      const metaAbs = Math.round((baseEleitores * Number(porcentAbstencaoMeta)) / 100);
+      const metaBra = Math.round((baseEleitores * Number(porcentBrancosMeta)) / 100);
+      const metaNul = Math.round((baseEleitores * Number(porcentNulosMeta)) / 100);
 
       if (quantAbstencoes < metaAbs) setQuantAbstencoes((prev) => prev + 1);
       if (quantVBrancos < metaBra) setQuantVBrancos((prev) => prev + 1);
       if (quantVNulos < metaNul) setQuantVNulos((prev) => prev + 1);
 
-      // 2. Cálculo exato de cotas de votos
       const metaP1Porcent = Number(porcentCand1Real) || 50;
-      const totalAlvoP1 = Math.round((limiteTotal * metaP1Porcent) / 100);
-      const totalAlvoP2 = limiteTotal - totalAlvoP1;
+      const totalAlvoP1 = Math.round((limiteValidos * metaP1Porcent) / 100);
+      const totalAlvoP2 = limiteValidos - totalAlvoP1;
 
       let votaP1 = false;
 
       if (candidato1 >= totalAlvoP1) {
-        // Cota do Polícia esgotada -> obrigatoriamente Ladrão
         votaP1 = false;
       } else if (candidato2 >= totalAlvoP2) {
-        // Cota do Ladrão esgotada -> obrigatoriamente Polícia
         votaP1 = true;
       } else {
-        // Ambas disponíveis -> equilibra dinamicamente em direção à meta
         const proporcaoAtualP1 = (candidato1 + 1) / (totalValidos + 1);
         votaP1 = proporcaoAtualP1 <= (metaP1Porcent / 100);
       }
@@ -235,6 +232,7 @@ function Urna() {
     sistemaTravado,
     totalValidos,
     totalVotosReal,
+    eleitoresTotais,
     candidato1,
     candidato2,
     porcentCand1Real,
@@ -354,16 +352,25 @@ function Urna() {
                 onChange={(e) => setPorcentNulosMeta(e.target.value)}
               />
               /
-              <span>Total:</span>
+              <span>Eleitores:</span>
               <input
                 type="number"
                 min="1"
                 disabled={sistemaTravado}
                 className={styles.escolherlimite}
-                value={totalVotosReal}
-                title="Meta de votos válidos da apuração"
-                onChange={(e) => setTotalVotosReal(e.target.value)}
+                value={eleitoresTotais}
+                title="Total de eleitores cadastrados"
+                onChange={(e) => setEleitoresTotais(e.target.value)}
               />
+              /
+              <span>Válidos:</span>
+              <div
+                className={styles.escolherporcentagem2}
+                title="Votos válidos calculados (Eleitores - Abstenções - Brancos - Nulos)"
+                style={{ fontWeight: 'bold' }}
+              >
+                {totalVotosReal}
+              </div>
             </div>
           </div>
         </div>
@@ -442,12 +449,18 @@ function Urna() {
 
         <div className={styles.adesivogeral}>
           <div className={styles.adesivo}>
-            <h1>ever$cript</h1>
+            <h1>@everson_eng_soft</h1>
           </div>
         </div>
       </div>
 
+      {/* Coluna Central com Eleitores + Contadores Padronizados */}
       <div className={styles.totalreal}>
+        <div className={styles.tt}>
+          <p>Eleitores</p>
+          <div className={styles.veleitoresreal}>{eleitoresTotais}</div>
+        </div>
+
         <div className={styles.tt}>
           <p>Abstenção</p>
           <div className={styles.vabstenreal}>{quantAbstencoes}</div>

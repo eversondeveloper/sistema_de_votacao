@@ -14,13 +14,24 @@ export function VotingProvider({ children }) {
   const [candidato2, setCandidato2] = useState(0);
   const [quantAbstencoes, setQuantAbstencoes] = useState(0);
 
-  // Metas e limites da apuração
-  const [totalVotosReal, setTotalVotosReal] = useState(100);
+  // Parâmetros configuráveis da eleição
+  const [eleitoresTotais, setEleitoresTotais] = useState(158);
   const [porcentCand1Real, setPorcentCand1Real] = useState(51);
+  const [porcentAbstencaoMeta, setPorcentAbstencaoMeta] = useState(20.5);
   const [porcentBrancosMeta, setPorcentBrancosMeta] = useState(1.4);
   const [porcentNulosMeta, setPorcentNulosMeta] = useState(3.1);
-  const [porcentAbstencaoMeta, setPorcentAbstencaoMeta] = useState(20.5);
   const [comSom, setComSom] = useState(true);
+
+  // Votos válidos calculados automaticamente com base nos eleitores e nas porcentagens
+  const totalVotosReal = useMemo(() => {
+    const totalEleitores = Number(eleitoresTotais) || 0;
+    const qtdAbs = Math.round((totalEleitores * Number(porcentAbstencaoMeta || 0)) / 100);
+    const qtdBra = Math.round((totalEleitores * Number(porcentBrancosMeta || 0)) / 100);
+    const qtdNul = Math.round((totalEleitores * Number(porcentNulosMeta || 0)) / 100);
+
+    const validosCalculados = totalEleitores - (qtdAbs + qtdBra + qtdNul);
+    return Math.max(0, validosCalculados);
+  }, [eleitoresTotais, porcentAbstencaoMeta, porcentBrancosMeta, porcentNulosMeta]);
 
   // Meta calculada do candidato 2
   const porcentCand2Real = useMemo(() => {
@@ -58,8 +69,9 @@ export function VotingProvider({ children }) {
     quantAbstencoes,
     setQuantAbstencoes,
     totalValidos,
+    eleitoresTotais,
+    setEleitoresTotais,
     totalVotosReal,
-    setTotalVotosReal,
     porcentCand1Real,
     setPorcentCand1Real,
     porcentCand2Real,

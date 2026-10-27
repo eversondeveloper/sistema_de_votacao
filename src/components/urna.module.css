@@ -49,12 +49,13 @@
   background: transparent;
   width: 2.2vmin;
   height: 2.2vmin;
-  margin-right: 1.5vmin;
+  margin-right: 1vmin;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .quantvotosbtn img,
@@ -75,40 +76,48 @@
 .controles {
   display: flex;
   align-items: center;
-  font-size: 1.3vmin;
-  gap: 0.4vmin;
+  font-size: 1.15vmin;
+  gap: 0.35vmin;
+  white-space: nowrap;
 }
 
+/* Inputs e caixas numéricas do player padronizados com texto visível */
 .escolherporcentagem,
 .escolherporcentagem2,
 .escolherlimite {
+  width: 4.7vmin;
   height: 3vmin;
-  border: none;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
   text-align: center;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.151), rgba(0, 0, 0, 0));
-  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.185);
+  background-color: #ffffff;
+  color: #1a1a1a;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2);
   font-family: inherit;
-  font-weight: bold;
+  font-weight: 800;
   font-size: 1.2vmin;
-}
-
-.escolherporcentagem {
-  width: 5.2vmin;
-  margin: 0 0.3vmin;
-}
-
-.escolherporcentagem2 {
+  font-variant-numeric: tabular-nums;
+  box-sizing: border-box;
+  margin: 0 0.2vmin;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 5.2vmin;
-  margin: 0 0.3vmin;
+  outline: none;
 }
 
-.escolherlimite {
-  width: 7.5vmin;
-  margin: 0 0.6vmin;
-  padding: 0.2vmin;
+/* Garante texto nítido mesmo quando o input estiver desabilitado (disabled) */
+.escolherporcentagem:disabled,
+.escolherlimite:disabled {
+  color: #1a1a1a;
+  -webkit-text-fill-color: #1a1a1a;
+  background-color: #f0f0f0;
+  opacity: 1;
+}
+
+.escolherporcentagem2 {
+  background-color: #e9ecef;
+  color: #1a1a1a;
+  cursor: default;
 }
 
 /* Moldura e Visor da Urna */
@@ -280,14 +289,14 @@
   background-color: #cfc79d;
   padding: 0.4vmin 1vmin;
   margin-top: 0.6vmin;
-  border-radius: 5px;
+  border-radius: 15px;
   background-image: url('../assets/img/fundobtnnome.jpg');
   background-size: cover;
   box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.315);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20vmin;
+  width: 25vmin;
 }
 
 .adesivo h1 {
@@ -301,8 +310,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
-  padding: 1vmin 0.4vmin;
-  height: 78%;
+  padding: 0.6vmin 0.4vmin;
+  height: 77%;
   box-sizing: border-box;
   background: transparent;
   border: none;
@@ -321,7 +330,7 @@
 }
 
 .tt p {
-  font-size: 0.95vmin;
+  font-size: 0.9vmin;
   font-weight: 800;
   color: #2e2b22;
   text-transform: uppercase;
@@ -330,7 +339,8 @@
   white-space: nowrap;
 }
 
-/* Base dos Mostradores */
+/* Base dos Mostradores com border-radius padronizado */
+.veleitoresreal,
 .vabstenreal,
 .vbrancosreal,
 .vnulosreal,
@@ -340,7 +350,7 @@
 .totalporcenttela1,
 .totalporcenttela2 {
   width: 100%;
-  height: 3.4vmin;
+  height: 3.1vmin;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -349,6 +359,13 @@
   font-variant-numeric: tabular-nums;
   border-radius: 4px;
   box-sizing: border-box;
+}
+
+/* Eleitores Totais */
+.veleitoresreal {
+  color: #ffffff;
+  background: #6f42c1;
+  box-shadow: inset 2px 2px 3px rgba(0, 0, 0, 0.6);
 }
 
 /* Abstenções */
@@ -417,7 +434,7 @@
   margin-bottom: 1vmin;
   background-color: #cfc697;
   width: 95%;
-  height: 11vmin;
+  height: 16vmin;
   padding: 1vmin 1.5vmin;
   border-radius: 5px;
   align-items: center;
@@ -428,7 +445,7 @@
 }
 
 .logo img {
-  width: 8vmin;
+  width: 12vmin;
   transition: 300ms;
   animation: caveira 8s infinite alternate;
 }
@@ -443,7 +460,7 @@
 }
 
 .nomedaurna {
-  font-size: 2.2vmin;
+  font-size: 4.5vmin;
   font-weight: bold;
   text-transform: uppercase;
   color: #2c2c2c;
@@ -455,7 +472,7 @@
   background-color: #2e2b22;
   background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/fundobtn.jpg');
   background-size: cover;
-  height: 52vmin;
+  height: 50vmin;
   max-height: 58vh;
   width: 95%;
   border-radius: 5px;

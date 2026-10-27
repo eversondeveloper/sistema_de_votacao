@@ -15,6 +15,7 @@ import vitLadrao from '../assets/img/seloladrao.png';
 
 function SuperComputador() {
   const {
+    eleitoresTotais,
     quantAbstencoes,
     quantVBrancos,
     quantVNulos,
@@ -193,9 +194,15 @@ function SuperComputador() {
           </div>
         </div>
 
-        {/* Centro: Contadores Organizados em Grid */}
+        {/* Centro: Contadores Organizados em Grid Padronizado */}
         <div className={styles.estatisticas}>
           <div className={styles.resultado}>
+            <div className={styles.veleitores}>
+              <p>
+                Eleitores
+                <strong className={styles.veleitores2}>{eleitoresTotais}</strong>
+              </p>
+            </div>
             <div className={styles.vabstencoes}>
               <p>
                 Abstenção

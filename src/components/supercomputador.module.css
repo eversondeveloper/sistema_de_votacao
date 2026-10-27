@@ -8,10 +8,10 @@
   max-height: 17vh;
   box-sizing: border-box;
   background: #0d1117;
-  background-image:
+  background-image: 
     radial-gradient(at 0% 0%, rgba(20, 32, 48, 0.7) 0px, transparent 50%),
     radial-gradient(at 100% 0%, rgba(30, 24, 40, 0.6) 0px, transparent 50%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 2px solid rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -24,57 +24,56 @@
 /* Linha Superior: Grid travado */
 .result {
   width: 100%;
-  height: calc(100% - 2vmin);
+  height: calc(100% - 2.2vmin);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6vmin 1.8vmin;
+  padding: 0.4vmin 1.6vmin;
   box-sizing: border-box;
   gap: 1.2vmin;
 }
 
-/* --- SEÇÃO 1: LOGOTIPO --- */
+/* --- SEÇÃO 1: LOGOTIPO BEM MAIOR E MARCADO --- */
 .logodindin {
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  width: 14vmin;
 }
 
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.4vmin;
-  font-size: 1.5vmin;
-  font-weight: 800;
-  letter-spacing: 0.1vmin;
-  color: #8b949e;
+  gap: 0.5vmin;
+  font-size: 3.5vmin;
+  font-weight: 900;
+  letter-spacing: 0.12vmin;
+  color: #f0f6fc;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 0.5vmin 0.8vmin;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.8vmin 1.2vmin;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: all 200ms ease;
   white-space: nowrap;
 }
 
 .logo:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #f0f6fc;
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
 }
 
 .dindin {
-  font-weight: 900;
+  font-weight: 950;
+  font-size: 2.4vmin;
   transition: color 250ms ease;
 }
 
-/* --- SEÇÃO 2: ESTATÍSTICAS COM 6 COLUNAS TRAVADAS --- */
+/* --- SEÇÃO 2: ESTATÍSTICAS COM ELEMENTOS E NÚMEROS GRANDES --- */
 .estatisticas {
   flex: 1;
-  max-width: 54vmin;
-  min-width: 54vmin;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -83,36 +82,35 @@
 
 .resultado {
   display: grid;
-  grid-template-columns: repeat(6, 8.2vmin);
+  grid-template-columns: repeat(7, 10vmin);
   gap: 0.6vmin;
-  width: 100%;
   justify-content: center;
   align-items: center;
 }
 
-/* Caixas de contadores com dimensões cravadas */
-.resultado>div {
-  width: 8.2vmin;
-  height: 5.6vmin;
+/* Caixas dos contadores maiores */
+.resultado > div {
+  width: 10vmin;
+  height: 6.8vmin;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(22, 27, 34, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 6px;
-  padding: 0.3vmin 0.4vmin;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background: rgba(22, 27, 34, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.2vmin 0.4vmin;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
 
 .resultado p {
-  font-size: 0.9vmin;
-  font-weight: 600;
+  font-size: 0.95vmin;
+  font-weight: 700;
   color: #8b949e;
   text-transform: uppercase;
-  letter-spacing: 0.04vmin;
+  letter-spacing: 0.05vmin;
   margin: 0 0 0.3vmin 0;
   display: flex;
   flex-direction: column;
@@ -120,15 +118,16 @@
   white-space: nowrap;
 }
 
-/* Números monoespaçados tabulares */
+/* Números dos contadores bem destacados */
+.veleitores2,
 .vabstencoes2,
 .vbrancos2,
 .vnulos2,
 .candidatoumum,
 .candidatodoisdois,
 .totalvotos {
-  font-size: 1.5vmin;
-  font-weight: 800;
+  font-size: 2vmin;
+  font-weight: 900;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
@@ -139,12 +138,16 @@
   box-shadow: none;
 }
 
+.veleitores2 {
+  color: #d2a8ff;
+}
+
 .vabstencoes2 {
-  color: #a5d6ff;
+  color: #79c0ff;
 }
 
 .vbrancos2 {
-  color: #e6edf3;
+  color: #ffffff;
 }
 
 .vnulos2 {
@@ -153,16 +156,18 @@
 
 .candidatoumum {
   color: #3fb950;
+  text-shadow: 0 0 10px rgba(63, 185, 80, 0.3);
 }
 
 .candidatodoisdois {
   color: #f85149;
+  text-shadow: 0 0 10px rgba(248, 81, 73, 0.3);
 }
 
 /* Destaque fixo para Válidos */
 .totalvotosvalidos {
-  background: rgba(31, 111, 235, 0.1) !important;
-  border-color: rgba(56, 139, 253, 0.35) !important;
+  background: rgba(31, 111, 235, 0.18) !important;
+  border-color: rgba(56, 139, 253, 0.5) !important;
 }
 
 .totalvotosvalidos p {
@@ -170,64 +175,65 @@
 }
 
 .totalvotos {
-  color: #79c0ff;
+  color: #a5d6ff;
+  text-shadow: 0 0 8px rgba(88, 166, 255, 0.35);
 }
 
-/* --- SEÇÃO 3: CARDS DOS CANDIDATOS COM LARGURA FIXA --- */
+/* --- SEÇÃO 3: CARDS DOS CANDIDATOS E PORCENTAGENS MAIORES --- */
 .porcentagemtopo {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 1vmin;
   flex-shrink: 0;
-  width: 33vmin;
 }
 
 .candCard {
-  width: 15.8vmin;
-  min-width: 15.8vmin;
-  max-width: 15.8vmin;
-  height: 5.8vmin;
+  width: 17.5vmin;
+  min-width: 17.5vmin;
+  max-width: 17.5vmin;
+  height: 6.8vmin;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 0.8vmin;
   background: rgba(22, 27, 34, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 0.4vmin 0.8vmin;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 9px;
+  padding: 0.4vmin 0.9vmin;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
   position: relative;
   overflow: hidden;
 }
 
 .candLider {
-  border-color: rgba(227, 179, 65, 0.6);
-  background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(227, 179, 65, 0.08) 100%);
-  box-shadow: 0 0 10px rgba(227, 179, 65, 0.25);
+  border-color: rgba(227, 179, 65, 0.85);
+  background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(227, 179, 65, 0.14) 100%);
+  box-shadow: 0 0 14px rgba(227, 179, 65, 0.35);
 }
 
 .imgpol,
 .imglad {
-  width: 3.8vmin;
-  min-width: 3.8vmin;
-  height: 3.8vmin;
+  width: 4.6vmin;
+  min-width: 4.6vmin;
+  height: 4.6vmin;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   flex-shrink: 0;
 }
 
 .candLider .imgpol,
 .candLider .imglad {
   border-color: #e3b341;
+  box-shadow: 0 0 8px rgba(227, 179, 65, 0.4);
 }
 
 .candInfo {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: calc(100% - 4.6vmin);
+  width: calc(100% - 5.4vmin);
   overflow: hidden;
 }
 
@@ -236,51 +242,51 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 1.5vmin;
+  margin-bottom: 0.1vmin;
 }
 
 .candNome {
-  font-size: 1.05vmin;
-  font-weight: 700;
+  font-size: 1.1vmin;
+  font-weight: 800;
   color: #8b949e;
-  letter-spacing: 0.04vmin;
+  letter-spacing: 0.05vmin;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .badgeLider {
-  font-size: 0.8vmin;
-  font-weight: 900;
+  font-size: 0.85vmin;
+  font-weight: 950;
   color: #0d1117;
   background: #e3b341;
-  padding: 0.1vmin 0.4vmin;
+  padding: 0.15vmin 0.4vmin;
   border-radius: 3px;
   letter-spacing: 0.05vmin;
   line-height: 1;
 }
 
 .candValor {
-  font-size: 2vmin;
-  font-weight: 900;
+  font-size: 2.8vmin;
+  font-weight: 950;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
-  color: #f0f6fc;
-  line-height: 1.1;
+  color: #ffffff;
+  line-height: 1;
   white-space: nowrap;
 }
 
 .candLider .candValor {
   color: #e3b341;
-  text-shadow: 0 0 8px rgba(227, 179, 65, 0.35);
+  text-shadow: 0 0 12px rgba(227, 179, 65, 0.5);
 }
 
 /* --- SEÇÃO 4: BARRA DE PROGRESSO --- */
 .barra1 {
   width: 100%;
-  height: 1.8vmin;
+  height: 2vmin;
   background: #161b22;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
   display: flex;
   align-items: center;
@@ -299,18 +305,18 @@
 .bonequinho {
   display: flex;
   align-items: center;
-  gap: 0.4vmin;
-  font-size: 1vmin;
-  font-weight: 800;
+  gap: 0.5vmin;
+  font-size: 1.15vmin;
+  font-weight: 900;
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
   color: #ffffff;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   white-space: nowrap;
 }
 
 .bonequinho img {
-  height: 1.3vmin;
+  height: 1.5vmin;
   object-fit: contain;
 }
 
@@ -337,7 +343,6 @@
     transform: scale(0.3);
     opacity: 0;
   }
-
   to {
     transform: scale(1);
     opacity: 1;
