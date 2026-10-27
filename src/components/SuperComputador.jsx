@@ -10,7 +10,7 @@ import imgBonequinho2 from '../assets/img/running.png';
 import corruptionMoney from '../assets/audio/money.mp3';
 import festaPolicia from '../assets/audio/somfestapoliciageral.mp3';
 import festaLadrao from '../assets/audio/somfestaladraogeral.mp3';
-import vitPolicia from '../assets/img/seloPolicia.png';
+import vitPolicia from '../assets/img/selopolicia.png';
 import vitLadrao from '../assets/img/seloladrao.png';
 
 function SuperComputador() {
@@ -27,6 +27,12 @@ function SuperComputador() {
   const [candidato1SP, setCandidato1SP] = useState(0);
   const [candidato2SP, setCandidato2SP] = useState(0);
   const [corruption, setCorruption] = useState(false);
+
+  // Ref para leitura síncrona imediata do estado de corrupção
+  const corruptionRef = useRef(false);
+  useEffect(() => {
+    corruptionRef.current = corruption;
+  }, [corruption]);
 
   // Instâncias estáveis de áudio
   const audioCorruptionRef = useRef(new Audio(corruptionMoney));
@@ -53,64 +59,83 @@ function SuperComputador() {
     return ((candidato2SP / totalValidosSP) * 100).toFixed(2);
   }, [candidato2SP, totalValidosSP]);
 
-  // Listener seguro para o botão do meio do mouse
+  // Listener para o botão do meio do mouse com alternância direta
+  const toggleCorruption = () => {
+    setCorruption((prev) => {
+      const next = !prev;
+      corruptionRef.current = next;
+      return next;
+    });
+  };
+
   useEffect(() => {
     const handleMouseDown = (event) => {
       if (event.button === 1) {
         event.preventDefault();
-        setCorruption((prev) => !prev);
+        toggleCorruption();
       }
     };
 
-    document.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousedown", handleMouseDown);
     return () => {
-      document.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousedown", handleMouseDown);
     };
   }, []);
 
-  // Efeito sonoro do modo corrupção
+  // Efeito sonoro ao ativar o modo corrupção
   useEffect(() => {
     if (corruption && comSom) {
       audioCorruptionRef.current.currentTime = 0;
-      audioCorruptionRef.current.play().catch(() => { });
+      audioCorruptionRef.current.play().catch(() => {});
     }
   }, [corruption, comSom]);
 
-  // Algoritmo de desvio de voto da urna para o SuperComputador
-  const ultimoVotoCand1Ref = useRef(candidato1);
+  // Refs para monitorar os totais anteriores da urna
+  const ultimoCand1UrnaRef = useRef(candidato1);
+  const ultimoCand2UrnaRef = useRef(candidato2);
+
+  // Processamento limpo e atômico dos votos da urna para o SuperComputador
   useEffect(() => {
-    if (candidato1 > ultimoVotoCand1Ref.current) {
-      const diff = candidato1 - ultimoVotoCand1Ref.current;
-      ultimoVotoCand1Ref.current = candidato1;
+    const novosVotosP1 = candidato1 - ultimoCand1UrnaRef.current;
+    const novosVotosP2 = candidato2 - ultimoCand2UrnaRef.current;
 
-      for (let i = 0; i < diff; i++) {
-        setCandidato2SP((prevCand2) => {
-          const totalAtual = candidato1SP + prevCand2;
-          const porcentagemCand2 = totalAtual > 0 ? (prevCand2 / totalAtual) * 100 : 0;
+    ultimoCand1UrnaRef.current = candidato1;
+    ultimoCand2UrnaRef.current = candidato2;
 
-          if (corruption && porcentagemCand2 < 52.0) {
-            return prevCand2 + 1;
-          } else {
-            setCandidato1SP((p1) => p1 + 1);
-            return prevCand2;
-          }
-        });
+    if (novosVotosP1 <= 0 && novosVotosP2 <= 0) return;
+
+    let p1Acrescer = 0;
+    let p2Acrescer = 0;
+
+    // Votos do Candidato 2 sempre vão para ele
+    if (novosVotosP2 > 0) {
+      p2Acrescer += novosVotosP2;
+    }
+
+    // Votos do Candidato 1 passam pelo filtro de desvio
+    if (novosVotosP1 > 0) {
+      let simP1 = candidato1SP;
+      let simP2 = candidato2SP + p2Acrescer;
+
+      for (let i = 0; i < novosVotosP1; i++) {
+        const totalSim = simP1 + simP2;
+        const porcentagemCand2 = totalSim > 0 ? (simP2 / totalSim) * 100 : 0;
+
+        // Se corrupção estiver ATIVA e Ladrão abaixo de 52%, desvia para o Candidato 2
+        // Se corrupção estiver DESATIVADA, vai integralmente para o Candidato 1
+        if (corruptionRef.current && porcentagemCand2 < 52.0) {
+          p2Acrescer += 1;
+          simP2 += 1;
+        } else {
+          p1Acrescer += 1;
+          simP1 += 1;
+        }
       }
-    } else {
-      ultimoVotoCand1Ref.current = candidato1;
     }
-  }, [candidato1, corruption, candidato1SP]);
 
-  const ultimoVotoCand2Ref = useRef(candidato2);
-  useEffect(() => {
-    if (candidato2 > ultimoVotoCand2Ref.current) {
-      const diff = candidato2 - ultimoVotoCand2Ref.current;
-      ultimoVotoCand2Ref.current = candidato2;
-      setCandidato2SP((prev) => prev + diff);
-    } else {
-      ultimoVotoCand2Ref.current = candidato2;
-    }
-  }, [candidato2]);
+    if (p1Acrescer > 0) setCandidato1SP((prev) => prev + p1Acrescer);
+    if (p2Acrescer > 0) setCandidato2SP((prev) => prev + p2Acrescer);
+  }, [candidato1, candidato2, candidato1SP, candidato2SP]);
 
   // Celebração final de 100%
   useEffect(() => {
@@ -118,9 +143,9 @@ function SuperComputador() {
       finalAudioTocandoRef.current = true;
       const timer = setTimeout(() => {
         if (Number(porcentCand1SP) > Number(porcentCand2SP)) {
-          audioFestaPRef.current.play().catch(() => { });
+          audioFestaPRef.current.play().catch(() => {});
         } else if (Number(porcentCand2SP) > Number(porcentCand1SP)) {
-          audioFestaLRef.current.play().catch(() => { });
+          audioFestaLRef.current.play().catch(() => {});
         }
       }, 500);
 
@@ -153,7 +178,7 @@ function SuperComputador() {
         <div className={styles.logodindin}>
           <div
             className={styles.logo}
-            onClick={() => setCorruption((prev) => !prev)}
+            onClick={toggleCorruption}
             role="button"
             tabIndex={0}
             title="Alternar modo"

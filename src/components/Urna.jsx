@@ -46,8 +46,6 @@ function Urna() {
     setPorcentBrancosMeta,
     porcentNulosMeta,
     setPorcentNulosMeta,
-    porcentCand1,
-    porcentCand2,
     totalValidos,
     comSom,
   } = useVoting();
@@ -55,7 +53,6 @@ function Urna() {
   const [numAuto, setNumAuto] = useState(false);
   const [sistemaTravado, setSistemaTravado] = useState(false);
 
-  // Instâncias persistentes de áudio
   const audioTeclaRef = useRef(new Audio(somTeclas));
   const audioConfirmaRef = useRef(new Audio(somConfirmaAudio));
   const audioCand1Ref = useRef(new Audio(somCand1V));
@@ -72,7 +69,6 @@ function Urna() {
   const numeroValido = candidatoNumero === 44 || candidatoNumero === 11;
   const telaPreenchida = num2Digit !== "";
 
-  // Dados do candidato na tela
   const dadosCandidato = useMemo(() => {
     if (candidatoNumero === 44) {
       return {
@@ -101,7 +97,6 @@ function Urna() {
     };
   }, [candidatoNumero]);
 
-  // Áudio ao completar o número do candidato
   useEffect(() => {
     if (num1Digit === "4" && num2Digit === "4") {
       tocarAudio(audioCand1Ref);
@@ -110,7 +105,6 @@ function Urna() {
     }
   }, [num1Digit, num2Digit, tocarAudio]);
 
-  // Teclado numérico
   const preencheNumeros = (e) => {
     if (sistemaTravado) return;
     const valor = e.target.value;
@@ -125,7 +119,6 @@ function Urna() {
     }
   };
 
-  // Botões de comando da urna
   const handleVotoBranco = () => {
     if (sistemaTravado) return;
     tocarAudio(audioTeclaRef);
@@ -171,7 +164,7 @@ function Urna() {
     setNum2Digit("");
   };
 
-  // Trava o sistema ao atingir a apuração completa
+  // Trava o sistema ao atingir o limite exato
   useEffect(() => {
     const limiteNumerico = Number(totalVotosReal) || 0;
     if (totalValidos >= limiteNumerico && limiteNumerico > 0) {
@@ -180,36 +173,47 @@ function Urna() {
     }
   }, [totalValidos, totalVotosReal]);
 
-  // Automação da aplicação de votos
+  // Simulação com cota matemática exata
   useEffect(() => {
     if (!numAuto || sistemaTravado) return;
 
-    const limiteNumerico = Number(totalVotosReal) || 0;
-    if (totalValidos >= limiteNumerico) {
+    const limiteTotal = Number(totalVotosReal) || 100;
+    if (totalValidos >= limiteTotal) {
       setNumAuto(false);
       setSistemaTravado(true);
       return;
     }
 
     const intervalo = setInterval(() => {
-      const metaAbs = Math.floor((totalValidos * Number(porcentAbstencaoMeta)) / 100);
-      const metaBra = Math.floor((totalValidos * Number(porcentBrancosMeta)) / 100);
-      const metaNul = Math.floor((totalValidos * Number(porcentNulosMeta)) / 100);
+      // 1. Atualiza métricas secundárias proporcionais
+      const metaAbs = Math.round((totalValidos * Number(porcentAbstencaoMeta)) / 100);
+      const metaBra = Math.round((totalValidos * Number(porcentBrancosMeta)) / 100);
+      const metaNul = Math.round((totalValidos * Number(porcentNulosMeta)) / 100);
 
-      if (quantAbstencoes < metaAbs) {
-        setQuantAbstencoes((prev) => prev + 1);
-      }
-      if (quantVBrancos < metaBra) {
-        setQuantVBrancos((prev) => prev + 1);
-      }
-      if (quantVNulos < metaNul) {
-        setQuantVNulos((prev) => prev + 1);
+      if (quantAbstencoes < metaAbs) setQuantAbstencoes((prev) => prev + 1);
+      if (quantVBrancos < metaBra) setQuantVBrancos((prev) => prev + 1);
+      if (quantVNulos < metaNul) setQuantVNulos((prev) => prev + 1);
+
+      // 2. Cálculo exato de cotas de votos
+      const metaP1Porcent = Number(porcentCand1Real) || 50;
+      const totalAlvoP1 = Math.round((limiteTotal * metaP1Porcent) / 100);
+      const totalAlvoP2 = limiteTotal - totalAlvoP1;
+
+      let votaP1 = false;
+
+      if (candidato1 >= totalAlvoP1) {
+        // Cota do Polícia esgotada -> obrigatoriamente Ladrão
+        votaP1 = false;
+      } else if (candidato2 >= totalAlvoP2) {
+        // Cota do Ladrão esgotada -> obrigatoriamente Polícia
+        votaP1 = true;
+      } else {
+        // Ambas disponíveis -> equilibra dinamicamente em direção à meta
+        const proporcaoAtualP1 = (candidato1 + 1) / (totalValidos + 1);
+        votaP1 = proporcaoAtualP1 <= (metaP1Porcent / 100);
       }
 
-      const p1Atual = Number(porcentCand1);
-      const metaP1 = Number(porcentCand1Real);
-
-      if (p1Atual < metaP1) {
+      if (votaP1) {
         setCandidato1((prev) => prev + 1);
         setNum1Digit("4");
         setNum2Digit("4");
@@ -231,7 +235,8 @@ function Urna() {
     sistemaTravado,
     totalValidos,
     totalVotosReal,
-    porcentCand1,
+    candidato1,
+    candidato2,
     porcentCand1Real,
     porcentAbstencaoMeta,
     porcentBrancosMeta,
@@ -252,10 +257,12 @@ function Urna() {
   const rodapeVisivel = (btnBranco || telaPreenchida) ? "#000000" : "transparent";
   const estiloBorda = (btnBranco || telaPreenchida) ? "2px solid #000000" : "none";
 
+  const pCand1Urna = totalValidos > 0 ? ((candidato1 / totalValidos) * 100).toFixed(2) : "0.00";
+  const pCand2Urna = totalValidos > 0 ? ((candidato2 / totalValidos) * 100).toFixed(2) : "0.00";
+
   return (
     <div className={styles.corpo}>
       <div className={styles.header}>
-        {/* Painel de Controles da Votação */}
         <div className={styles.quantvotos}>
           <div className={styles.btnsplay}>
             <button
@@ -361,7 +368,6 @@ function Urna() {
           </div>
         </div>
 
-        {/* Visor da Urna */}
         <div className={styles.tela}>
           <div className={styles.telageral}>
             <div className={styles.tela1} style={{ borderBottom: estiloBorda }}>
@@ -441,7 +447,6 @@ function Urna() {
         </div>
       </div>
 
-      {/* Painel Central: Total Real com Abstenção Formatada */}
       <div className={styles.totalreal}>
         <div className={styles.tt}>
           <p>Abstenção</p>
@@ -476,25 +481,24 @@ function Urna() {
         <div className={styles.tt}>
           <p>Polícia</p>
           <div
-            style={{ backgroundColor: Number(porcentCand1) > 50 ? "yellow" : "white" }}
+            style={{ backgroundColor: Number(pCand1Urna) > 50 ? "yellow" : "white" }}
             className={styles.totalporcenttela1}
           >
-            {porcentCand1}%
+            {pCand1Urna}%
           </div>
         </div>
 
         <div className={styles.tt}>
           <p>Ladrão</p>
           <div
-            style={{ backgroundColor: Number(porcentCand2) > 50 ? "yellow" : "white" }}
+            style={{ backgroundColor: Number(pCand2Urna) > 50 ? "yellow" : "white" }}
             className={styles.totalporcenttela2}
           >
-            {porcentCand2}%
+            {pCand2Urna}%
           </div>
         </div>
       </div>
 
-      {/* Teclado Físico da Urna (trava ao completar 100%) */}
       <div
         className={styles.botoescontainer}
         style={{
