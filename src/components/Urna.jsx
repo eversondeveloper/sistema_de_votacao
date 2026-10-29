@@ -214,7 +214,7 @@ function Urna() {
         setNum1Digit("");
         setNum2Digit("");
       }, 150);
-    }, 600);
+    }, 400);
 
     return () => clearInterval(intervalo);
   }, [
