@@ -14,6 +14,9 @@ export function VotingProvider({ children }) {
   const [candidato2, setCandidato2] = useState(0);
   const [quantAbstencoes, setQuantAbstencoes] = useState(0);
 
+  // Controle global da fraude
+  const [corruption, setCorruption] = useState(false);
+
   // Parâmetros configuráveis da eleição
   const [eleitoresTotais, setEleitoresTotais] = useState(158);
   const [porcentCand1Real, setPorcentCand1Real] = useState(51);
@@ -22,7 +25,7 @@ export function VotingProvider({ children }) {
   const [porcentNulosMeta, setPorcentNulosMeta] = useState(3.1);
   const [comSom, setComSom] = useState(true);
 
-  // Votos válidos calculados automaticamente com base nos eleitores e nas porcentagens
+  // Votos válidos calculados automaticamente
   const totalVotosReal = useMemo(() => {
     const totalEleitores = Number(eleitoresTotais) || 0;
     const qtdAbs = Math.round((totalEleitores * Number(porcentAbstencaoMeta || 0)) / 100);
@@ -83,6 +86,8 @@ export function VotingProvider({ children }) {
     setPorcentAbstencaoMeta,
     porcentCand1,
     porcentCand2,
+    corruption,
+    setCorruption,
     comSom,
     setComSom,
   };

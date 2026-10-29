@@ -14,8 +14,8 @@ import imgBtnReset from '../assets/img/btnreset.png';
 
 import somTeclas from '../assets/audio/tecla1.mp3';
 import somConfirmaAudio from '../assets/audio/confirma.mp3';
-import somCand1V from '../assets/audio/teclapolicia.wav';
-import somCand2V from '../assets/audio/teclaladrao.wav';
+import somCand1V from '../assets/audio/teclapolicia.mp3';
+import somCand2V from '../assets/audio/teclaladrao.mp3';
 
 function Urna() {
   const {
@@ -174,7 +174,7 @@ function Urna() {
     }
   }, [totalValidos, totalVotosReal]);
 
-  // Simulação com base no total de eleitores e cotas exatas de válidos
+  // Simulação contínua e equilibrada em direção à meta configurada
   useEffect(() => {
     if (!numAuto || sistemaTravado) return;
 
@@ -195,20 +195,10 @@ function Urna() {
       if (quantVBrancos < metaBra) setQuantVBrancos((prev) => prev + 1);
       if (quantVNulos < metaNul) setQuantVNulos((prev) => prev + 1);
 
+      // Decisão dinâmica baseada na proporção corrente de votos válidos
       const metaP1Porcent = Number(porcentCand1Real) || 50;
-      const totalAlvoP1 = Math.round((limiteValidos * metaP1Porcent) / 100);
-      const totalAlvoP2 = limiteValidos - totalAlvoP1;
-
-      let votaP1 = false;
-
-      if (candidato1 >= totalAlvoP1) {
-        votaP1 = false;
-      } else if (candidato2 >= totalAlvoP2) {
-        votaP1 = true;
-      } else {
-        const proporcaoAtualP1 = (candidato1 + 1) / (totalValidos + 1);
-        votaP1 = proporcaoAtualP1 <= (metaP1Porcent / 100);
-      }
+      const proporcaoAtualP1 = totalValidos > 0 ? (candidato1 / totalValidos) * 100 : 0;
+      const votaP1 = proporcaoAtualP1 < metaP1Porcent;
 
       if (votaP1) {
         setCandidato1((prev) => prev + 1);
@@ -224,7 +214,7 @@ function Urna() {
         setNum1Digit("");
         setNum2Digit("");
       }, 150);
-    }, 400);
+    }, 600);
 
     return () => clearInterval(intervalo);
   }, [
@@ -454,7 +444,6 @@ function Urna() {
         </div>
       </div>
 
-      {/* Coluna Central com Eleitores + Contadores Padronizados */}
       <div className={styles.totalreal}>
         <div className={styles.tt}>
           <p>Eleitores</p>
@@ -525,7 +514,7 @@ function Urna() {
             <img src={imgCaveira} alt="Caveira de pirata" />
           </div>
           <div className={styles.nomedaurna}>
-            <p>Pirataria</p>
+            <p>Tigrinho</p>
             <p>Eleitoral</p>
           </div>
         </div>

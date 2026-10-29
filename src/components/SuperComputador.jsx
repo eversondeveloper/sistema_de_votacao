@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import styles from './supercomputador.module.css';
 import { useVoting } from '../context/VotingContext';
 
@@ -22,26 +22,125 @@ function SuperComputador() {
     candidato1,
     candidato2,
     totalVotosReal,
+    corruption,
+    setCorruption,
     comSom,
   } = useVoting();
 
   const [candidato1SP, setCandidato1SP] = useState(0);
   const [candidato2SP, setCandidato2SP] = useState(0);
-  const [corruption, setCorruption] = useState(false);
 
-  // Ref para leitura síncrona imediata do estado de corrupção
-  const corruptionRef = useRef(false);
-  useEffect(() => {
-    corruptionRef.current = corruption;
-  }, [corruption]);
-
-  // Instâncias estáveis de áudio
   const audioCorruptionRef = useRef(new Audio(corruptionMoney));
   const audioFestaPRef = useRef(new Audio(festaPolicia));
   const audioFestaLRef = useRef(new Audio(festaLadrao));
   const finalAudioTocandoRef = useRef(false);
 
-  // Votos válidos e apuração interna do SuperComputador
+  const toggleCorruption = useCallback(() => {
+    setCorruption((prev) => !prev);
+    if (comSom) {
+      audioCorruptionRef.current.currentTime = 0;
+      audioCorruptionRef.current.play().catch(() => { });
+    }
+  }, [setCorruption, comSom]);
+
+  useEffect(() => {
+    const handleMouseDown = (e) => {
+      if (e.button === 1) {
+        e.preventDefault();
+        toggleCorruption();
+      }
+    };
+    window.addEventListener('mousedown', handleMouseDown);
+    return () => window.removeEventListener('mousedown', handleMouseDown);
+  }, [toggleCorruption]);
+
+  const ultimoUrnaP1 = useRef(candidato1);
+  const ultimoUrnaP2 = useRef(candidato2);
+
+  useEffect(() => {
+    // 1. Calcula quantos novos votos acabaram de entrar na urna
+    const novosVotosCandidato1 = candidato1 - ultimoUrnaP1.current;
+    const novosVotosCandidato2 = candidato2 - ultimoUrnaP2.current;
+
+    // Atualiza a memória com os valores atuais da urna
+    ultimoUrnaP1.current = candidato1;
+    ultimoUrnaP2.current = candidato2;
+
+    // 2. FRAUDE DESLIGADA: Segue rigorosamente a urna/player
+    if (!corruption) {
+      setCandidato1SP(candidato1);
+      setCandidato2SP(candidato2);
+      return;
+    }
+
+    // 3. FRAUDE LIGADA: Verifica o comparecimento dos eleitores
+    const eleitoresQueCompareceram =
+      candidato1SP + candidato2SP + quantVBrancos + quantVNulos;
+    const metadeDosEleitoresTotais = (Number(eleitoresTotais) || 0) * 0.5;
+
+    const passouDeCinquentaPorcento =
+      eleitoresQueCompareceram > metadeDosEleitoresTotais;
+
+    let votosParaCandidato1 = 0;
+    let votosParaCandidato2 = novosVotosCandidato2 > 0 ? novosVotosCandidato2 : 0;
+
+    // Placar temporário na memória para testar cada voto
+    let placarTesteCandidato1 = candidato1SP;
+    let placarTesteCandidato2 = candidato2SP + votosParaCandidato2;
+
+    // Avalia os votos que chegam do Candidato 1 (Polícia)
+    for (let contador = 0; contador < novosVotosCandidato1; contador++) {
+      const totalValidosTeste = placarTesteCandidato1 + placarTesteCandidato2 + 1;
+
+      if (!passouDeCinquentaPorcento) {
+        // FASE 1: Até 50% dos eleitores -> Polícia lidera limitado a 52,00%
+        const porcentagemPoliciaTeste =
+          ((placarTesteCandidato1 + 1) / totalValidosTeste) * 100;
+
+        if (porcentagemPoliciaTeste <= 52.00) {
+          votosParaCandidato1 += 1;
+          placarTesteCandidato1 += 1;
+        } else {
+          // Passou de 52%: desvia o excedente para o Ladrão
+          votosParaCandidato2 += 1;
+          placarTesteCandidato2 += 1;
+        }
+      } else {
+        // FASE 2: Após 50% dos eleitores -> Ladrão vira e busca cravar 51,90%
+        const porcentagemLadraoTeste =
+          (placarTesteCandidato2 / (totalValidosTeste - 1 || 1)) * 100;
+
+        if (porcentagemLadraoTeste < 51.90) {
+          // Ladrão abaixo da meta: rouba o voto do Polícia
+          votosParaCandidato2 += 1;
+          placarTesteCandidato2 += 1;
+        } else {
+          // Ladrão atingiu 51,90%: entrega o voto ao Polícia
+          votosParaCandidato1 += 1;
+          placarTesteCandidato1 += 1;
+        }
+      }
+    }
+
+    // 4. Grava os novos votos no SuperComputador
+    if (votosParaCandidato1 > 0) {
+      setCandidato1SP((valorAnterior) => valorAnterior + votosParaCandidato1);
+    }
+    if (votosParaCandidato2 > 0) {
+      setCandidato2SP((valorAnterior) => valorAnterior + votosParaCandidato2);
+    }
+  }, [
+    candidato1,
+    candidato2,
+    corruption,
+    candidato1SP,
+    candidato2SP,
+    eleitoresTotais,
+    quantVBrancos,
+    quantVNulos,
+  ]);
+
+  // Cálculos e Porcentagens
   const totalValidosSP = candidato1SP + candidato2SP;
   const limiteSP = Number(totalVotosReal) || 1;
 
@@ -51,110 +150,30 @@ function SuperComputador() {
   }, [totalValidosSP, limiteSP]);
 
   const porcentCand1SP = useMemo(() => {
-    if (totalValidosSP === 0) return "0.00";
+    if (totalValidosSP === 0) return '0.00';
     return ((candidato1SP / totalValidosSP) * 100).toFixed(2);
   }, [candidato1SP, totalValidosSP]);
 
   const porcentCand2SP = useMemo(() => {
-    if (totalValidosSP === 0) return "0.00";
+    if (totalValidosSP === 0) return '0.00';
     return ((candidato2SP / totalValidosSP) * 100).toFixed(2);
   }, [candidato2SP, totalValidosSP]);
 
-  // Listener para o botão do meio do mouse com alternância direta
-  const toggleCorruption = () => {
-    setCorruption((prev) => {
-      const next = !prev;
-      corruptionRef.current = next;
-      return next;
-    });
-  };
-
-  useEffect(() => {
-    const handleMouseDown = (event) => {
-      if (event.button === 1) {
-        event.preventDefault();
-        toggleCorruption();
-      }
-    };
-
-    window.addEventListener("mousedown", handleMouseDown);
-    return () => {
-      window.removeEventListener("mousedown", handleMouseDown);
-    };
-  }, []);
-
-  // Efeito sonoro ao ativar o modo corrupção
-  useEffect(() => {
-    if (corruption && comSom) {
-      audioCorruptionRef.current.currentTime = 0;
-      audioCorruptionRef.current.play().catch(() => {});
-    }
-  }, [corruption, comSom]);
-
-  // Refs para monitorar os totais anteriores da urna
-  const ultimoCand1UrnaRef = useRef(candidato1);
-  const ultimoCand2UrnaRef = useRef(candidato2);
-
-  // Processamento limpo e atômico dos votos da urna para o SuperComputador
-  useEffect(() => {
-    const novosVotosP1 = candidato1 - ultimoCand1UrnaRef.current;
-    const novosVotosP2 = candidato2 - ultimoCand2UrnaRef.current;
-
-    ultimoCand1UrnaRef.current = candidato1;
-    ultimoCand2UrnaRef.current = candidato2;
-
-    if (novosVotosP1 <= 0 && novosVotosP2 <= 0) return;
-
-    let p1Acrescer = 0;
-    let p2Acrescer = 0;
-
-    // Votos do Candidato 2 sempre vão para ele
-    if (novosVotosP2 > 0) {
-      p2Acrescer += novosVotosP2;
-    }
-
-    // Votos do Candidato 1 passam pelo filtro de desvio
-    if (novosVotosP1 > 0) {
-      let simP1 = candidato1SP;
-      let simP2 = candidato2SP + p2Acrescer;
-
-      for (let i = 0; i < novosVotosP1; i++) {
-        const totalSim = simP1 + simP2;
-        const porcentagemCand2 = totalSim > 0 ? (simP2 / totalSim) * 100 : 0;
-
-        // Se corrupção estiver ATIVA e Ladrão abaixo de 52%, desvia para o Candidato 2
-        // Se corrupção estiver DESATIVADA, vai integralmente para o Candidato 1
-        if (corruptionRef.current && porcentagemCand2 < 52.0) {
-          p2Acrescer += 1;
-          simP2 += 1;
-        } else {
-          p1Acrescer += 1;
-          simP1 += 1;
-        }
-      }
-    }
-
-    if (p1Acrescer > 0) setCandidato1SP((prev) => prev + p1Acrescer);
-    if (p2Acrescer > 0) setCandidato2SP((prev) => prev + p2Acrescer);
-  }, [candidato1, candidato2, candidato1SP, candidato2SP]);
-
-  // Celebração final de 100%
+  // Celebração ao atingir 100%
   useEffect(() => {
     if (porcentGeralSP === 100 && !finalAudioTocandoRef.current && comSom) {
       finalAudioTocandoRef.current = true;
       const timer = setTimeout(() => {
         if (Number(porcentCand1SP) > Number(porcentCand2SP)) {
-          audioFestaPRef.current.play().catch(() => {});
+          audioFestaPRef.current.play().catch(() => { });
         } else if (Number(porcentCand2SP) > Number(porcentCand1SP)) {
-          audioFestaLRef.current.play().catch(() => {});
+          audioFestaLRef.current.play().catch(() => { });
         }
       }, 500);
-
       return () => clearTimeout(timer);
     }
   }, [porcentGeralSP, porcentCand1SP, porcentCand2SP, comSom]);
 
-  // Imagem de selo final
   const seloFinal = useMemo(() => {
     if (porcentGeralSP !== 100) return null;
     if (Number(porcentCand1SP) > 50) return vitPolicia;
@@ -165,28 +184,26 @@ function SuperComputador() {
   const cand1Lider = Number(porcentCand1SP) > 50;
   const cand2Lider = Number(porcentCand2SP) > 50;
 
-  // Cor dinâmica da barra com gradiente sutil
   const corBarraProgresso = useMemo(() => {
-    if (Number(porcentCand1SP) > 50) return "linear-gradient(90deg, #1f6feb, #2ea043)";
-    if (Number(porcentCand2SP) > 50) return "linear-gradient(90deg, #1f6feb, #da3633)";
-    return "linear-gradient(90deg, #30363d, #6e7681)";
+    if (Number(porcentCand1SP) > 50) return 'linear-gradient(90deg, #1f6feb, #2ea043)';
+    if (Number(porcentCand2SP) > 50) return 'linear-gradient(90deg, #1f6feb, #da3633)';
+    return 'linear-gradient(90deg, #30363d, #6e7681)';
   }, [porcentCand1SP, porcentCand2SP]);
 
   return (
     <div className={styles.porcentagem}>
       <div className={styles.result}>
-        {/* Lado Esquerdo: Identificação e Gatilho Secreto */}
         <div className={styles.logodindin}>
           <div
             className={styles.logo}
             onClick={toggleCorruption}
             role="button"
             tabIndex={0}
-            title="Alternar modo"
+            title={corruption ? 'Fraude ATIVA' : 'Fraude DESATIVADA'}
           >
             <span
               className={styles.dindin}
-              style={{ color: corruption ? "#f85149" : "#3fb950" }}
+              style={{ color: corruption ? '#f85149' : '#3fb950' }}
             >
               $UPER
             </span>
@@ -194,7 +211,6 @@ function SuperComputador() {
           </div>
         </div>
 
-        {/* Centro: Contadores Organizados em Grid Padronizado */}
         <div className={styles.estatisticas}>
           <div className={styles.resultado}>
             <div className={styles.veleitores}>
@@ -242,9 +258,7 @@ function SuperComputador() {
           </div>
         </div>
 
-        {/* Lado Direito: Cards dos Candidatos em Destaque */}
         <div className={styles.porcentagemtopo}>
-          {/* Card Candidato 1 */}
           <div
             className={`${styles.candCard} ${cand1Lider ? styles.candLider : ''}`}
             title="Polícia (Nº 44)"
@@ -259,7 +273,6 @@ function SuperComputador() {
             </div>
           </div>
 
-          {/* Card Candidato 2 */}
           <div
             className={`${styles.candCard} ${cand2Lider ? styles.candLider : ''}`}
             title="Ladrão (Nº 11)"
@@ -276,14 +289,13 @@ function SuperComputador() {
         </div>
       </div>
 
-      {/* Barra de Progresso Geral da Totalização */}
       <div className={styles.barra1}>
         <div
           className={styles.barra2}
           style={{
             width: `${porcentGeralSP}%`,
             background: corBarraProgresso,
-            transition: "width 600ms cubic-bezier(0.4, 0, 0.2, 1), background 600ms ease",
+            transition: 'width 600ms cubic-bezier(0.4, 0, 0.2, 1), background 600ms ease',
           }}
         >
           <div className={styles.bonequinho}>
@@ -296,7 +308,6 @@ function SuperComputador() {
         </div>
       </div>
 
-      {/* Selo final comemorativo */}
       {seloFinal && (
         <div className={styles.imagemfinal}>
           <img src={seloFinal} alt="Selo de Vitória" />
