@@ -73,51 +73,187 @@
   transform: scale(1.15);
 }
 
-.controles {
-  display: flex;
+/* Botão Compacto do Player no Topo */
+.btnConfiguracao {
+  display: inline-flex;
   align-items: center;
-  font-size: 1.15vmin;
-  gap: 0.35vmin;
-  white-space: nowrap;
-}
-
-/* Inputs e caixas numéricas do player padronizados com texto visível */
-.escolherporcentagem,
-.escolherporcentagem2,
-.escolherlimite {
-  width: 4.7vmin;
-  height: 3vmin;
-  border: 1px solid rgba(0, 0, 0, 0.35);
+  gap: 0.6vmin;
+  background-color: #21262d;
+  color: #c9d1d9;
+  border: 1px solid #30363d;
   border-radius: 4px;
-  text-align: center;
-  background-color: #ffffff;
-  color: #1a1a1a;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.2);
-  font-family: inherit;
-  font-weight: 800;
+  padding: 0.3vmin 1vmin;
   font-size: 1.2vmin;
-  font-variant-numeric: tabular-nums;
-  box-sizing: border-box;
-  margin: 0 0.2vmin;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 150ms ease;
+  margin-left: 0.6vmin;
   outline: none;
 }
 
-/* Garante texto nítido mesmo quando o input estiver desabilitado (disabled) */
-.escolherporcentagem:disabled,
-.escolherlimite:disabled {
-  color: #1a1a1a;
-  -webkit-text-fill-color: #1a1a1a;
-  background-color: #f0f0f0;
-  opacity: 1;
+.btnConfiguracao svg {
+  width: 1.6vmin;
+  height: 1.6vmin;
 }
 
-.escolherporcentagem2 {
-  background-color: #e9ecef;
-  color: #1a1a1a;
-  cursor: default;
+.btnConfiguracao:hover,
+.btnConfiguracaoAtivo {
+  background-color: #30363d;
+  color: #58a6ff;
+  border-color: #58a6ff;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   Menu Flutuante / Modal Amplo e Nítido
+   ========================================================= */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: modalFadeIn 150ms ease-out;
+}
+
+.modalConteudo {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 580px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+  color: #f0f6fc;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #30363d;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+
+.modalHeader h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #58a6ff;
+  margin: 0;
+}
+
+.modalCloseBtn {
+  background: transparent;
+  border: none;
+  color: #8b949e;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 6px;
+  border-radius: 4px;
+  transition: color 150ms ease;
+}
+
+.modalCloseBtn:hover {
+  color: #f85149;
+}
+
+.modalGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modalCard {
+  background: #0d1117;
+  border: 1px solid #21262d;
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+
+.modalCard h3 {
+  font-size: 0.85rem;
+  color: #8b949e;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px 0;
+}
+
+.modalField {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.modalField:last-child {
+  margin-bottom: 0;
+}
+
+.modalField label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #c9d1d9;
+}
+
+/* Inputs numéricos amplos e nítidos */
+.modalField input {
+  width: 95px;
+  height: 38px;
+  background-color: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.modalField input:focus {
+  outline: none;
+  border-color: #58a6ff;
+  box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.25);
+}
+
+.modalField input:disabled {
+  background-color: #21262d;
+  color: #8b949e;
+  border-color: #30363d;
+  cursor: not-allowed;
+}
+
+.modalValorCalculado {
+  width: 95px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #f0f6fc;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* Moldura e Visor da Urna */
@@ -271,6 +407,7 @@
   padding-top: 0.5vmin;
   padding-bottom: 0.5vmin;
   font-size: 1.4vmin;
+  border-top: none;
 }
 
 .telarodape p {
@@ -430,15 +567,16 @@
 .nome {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 2vmin;
+  margin-bottom: 1vmin;
   background-color: #cfc697;
   width: 95%;
   height: 16vmin;
   padding: 1vmin 1.5vmin;
   border-radius: 5px;
   align-items: center;
-  background-image: url('../assets/img/fundobtnnome.jpg');
-  background-size: cover;
+  background-image: url('../assets/img/tigrinho2.jpg');
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.315);
   box-sizing: border-box;
   overflow: hidden;
@@ -446,17 +584,6 @@
 
 .logo img {
   width: 13vmin;
-  transition: 300ms;
-  animation: caveira 8s infinite alternate;
-}
-
-@keyframes caveira {
-  from {
-    transform: scale(1);
-  }
-  to {
-    transform: scale(1.15);
-  }
 }
 
 .nomedaurna {
@@ -501,14 +628,21 @@
   width: 28%;
   height: 22%;
   border-radius: 5px;
-  font-size: 2.6vmin;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 2.5vmin;
+  /* Reduz ligeiramente para acomodar o espaçamento */
   border: none;
   box-shadow: 3px 3px 3px 2px rgba(0, 0, 0, 0.753);
   font-weight: bold;
   background-size: cover;
+  box-sizing: border-box;
+
+  /* Alinhamento no canto inferior esquerdo */
+  text-align: left;
+  padding-left: 0.8vmin;
+  /* Afastamento da borda esquerda */
+  padding-top: 2.4vmin;
+  /* Empurra o número para a parte inferior */
+  padding-bottom: 0;
 }
 
 .btn1 input:hover {
@@ -517,16 +651,45 @@
   box-shadow: none;
 }
 
-.bton1 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn1.png'); }
-.bton2 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn2.png'); }
-.bton3 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn3.png'); }
-.bton4 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn4.png'); }
-.bton5 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn5.png'); }
-.bton6 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn6.png'); }
-.bton7 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn7.png'); }
-.bton8 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn8.png'); }
-.bton9 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn9.png'); }
-.bton0 { background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn0.png'); }
+.bton1 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn1.png');
+}
+
+.bton2 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn2.png');
+}
+
+.bton3 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn3.png');
+}
+
+.bton4 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn4.png');
+}
+
+.bton5 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn5.png');
+}
+
+.bton6 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn6.png');
+}
+
+.bton7 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn7.png');
+}
+
+.bton8 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn8.png');
+}
+
+.bton9 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn9.png');
+}
+
+.bton0 {
+  background-image: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.73)), url('../assets/img/btn/btn0.png');
+}
 
 .btn2 {
   height: 28%;
@@ -544,7 +707,7 @@
   cursor: pointer;
   font-weight: bold;
   font-family: 'Oswald', sans-serif;
-  color: #2c2c2c;
+  color: #141414;
   border: none;
 }
 

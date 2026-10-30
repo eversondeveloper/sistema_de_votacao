@@ -3,7 +3,6 @@ import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import styles from './urna.module.css';
 import { useVoting } from '../context/VotingContext';
 
-import imgCaveira from '../assets/img/pngegg.png';
 import fotoCand1 from '../assets/img/policia.jpg';
 import fotoCand1Vice from '../assets/img/outropolicia.jpg';
 import fotoCand2 from '../assets/img/bandido.jpg';
@@ -53,6 +52,7 @@ function Urna() {
 
   const [numAuto, setNumAuto] = useState(false);
   const [sistemaTravado, setSistemaTravado] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(false);
 
   const audioTeclaRef = useRef(new Audio(somTeclas));
   const audioConfirmaRef = useRef(new Audio(somConfirmaAudio));
@@ -195,7 +195,6 @@ function Urna() {
       if (quantVBrancos < metaBra) setQuantVBrancos((prev) => prev + 1);
       if (quantVNulos < metaNul) setQuantVNulos((prev) => prev + 1);
 
-      // Decisão dinâmica baseada na proporção corrente de votos válidos
       const metaP1Porcent = Number(porcentCand1Real) || 50;
       const proporcaoAtualP1 = totalValidos > 0 ? (candidato1 / totalValidos) * 100 : 0;
       const votaP1 = proporcaoAtualP1 < metaP1Porcent;
@@ -251,6 +250,7 @@ function Urna() {
   return (
     <div className={styles.corpo}>
       <div className={styles.header}>
+        {/* Barra Superior Compacta: Play, Pause, Reset e Botão do Menu Flutuante */}
         <div className={styles.quantvotos}>
           <div className={styles.btnsplay}>
             <button
@@ -282,88 +282,127 @@ function Urna() {
               <img src={imgBtnReset} alt="Reset" title="Reinicia e destrava a aplicação." />
             </button>
 
-            <div className={styles.controles}>
-              <span>Polícia</span>
-              <input
-                title="Defina a porcentagem desejada do Candidato 1"
-                type="number"
-                min="0"
-                max="100"
-                disabled={sistemaTravado}
-                className={styles.escolherporcentagem}
-                value={porcentCand1Real}
-                onChange={(e) => setPorcentCand1Real(e.target.value)}
-              />
-              % /
-              <span>Ladrão</span>
-              <div
-                className={styles.escolherporcentagem2}
-                title="Porcentagem calculada do Candidato 2"
-              >
-                {porcentCand2Real}
+            {/* Ícone de Engrenagem para abrir o menu flutuante */}
+            <button
+              type="button"
+              className={`${styles.btnConfiguracao} ${menuAberto ? styles.btnConfiguracaoAtivo : ''}`}
+              title="Abrir configurações de votação (Metas, Eleitores, Válidos)"
+              onClick={() => {
+                tocarAudio(audioTeclaRef);
+                setMenuAberto((prev) => !prev);
+              }}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              </svg>
+              <span>PLAYER</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Modal / Menu Flutuante Ampliado e Bem Espaçado */}
+        {menuAberto && (
+          <div className={styles.modalOverlay} onClick={() => setMenuAberto(false)}>
+            <div className={styles.modalConteudo} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <h2>Configurações do Player</h2>
+                <button
+                  type="button"
+                  className={styles.modalCloseBtn}
+                  onClick={() => setMenuAberto(false)}
+                  title="Fechar configurações"
+                >
+                  &times;
+                </button>
               </div>
-              % /
-              <span>Abstenção(%)</span>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
-                disabled={sistemaTravado}
-                className={styles.escolherporcentagem}
-                value={porcentAbstencaoMeta}
-                title="Meta de abstenções"
-                onChange={(e) => setPorcentAbstencaoMeta(e.target.value)}
-              />
-              /
-              <span>Brancos(%)</span>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
-                disabled={sistemaTravado}
-                className={styles.escolherporcentagem}
-                value={porcentBrancosMeta}
-                title="Meta de votos brancos"
-                onChange={(e) => setPorcentBrancosMeta(e.target.value)}
-              />
-              /
-              <span>Nulos(%)</span>
-              <input
-                type="number"
-                step="0.1"
-                min="0"
-                max="100"
-                disabled={sistemaTravado}
-                className={styles.escolherporcentagem}
-                value={porcentNulosMeta}
-                title="Meta de votos nulos"
-                onChange={(e) => setPorcentNulosMeta(e.target.value)}
-              />
-              /
-              <span>Eleitores:</span>
-              <input
-                type="number"
-                min="1"
-                disabled={sistemaTravado}
-                className={styles.escolherlimite}
-                value={eleitoresTotais}
-                title="Total de eleitores cadastrados"
-                onChange={(e) => setEleitoresTotais(e.target.value)}
-              />
-              /
-              <span>Válidos:</span>
-              <div
-                className={styles.escolherporcentagem2}
-                title="Votos válidos calculados (Eleitores - Abstenções - Brancos - Nulos)"
-                style={{ fontWeight: 'bold' }}
-              >
-                {totalVotosReal}
+
+              <div className={styles.modalGrid}>
+                {/* Seção Candidatos */}
+                <div className={styles.modalCard}>
+                  <h3>Candidatos</h3>
+                  <div className={styles.modalField}>
+                    <label>44 Polícia (%)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      disabled={sistemaTravado}
+                      value={porcentCand1Real}
+                      onChange={(e) => setPorcentCand1Real(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.modalField}>
+                    <label>11 Ladrão (%)</label>
+                    <div className={styles.modalValorCalculado}>{porcentCand2Real}%</div>
+                  </div>
+                </div>
+
+                {/* Seção Abstenção, Brancos e Nulos */}
+                <div className={styles.modalCard}>
+                  <h3>Votos Neutros & Abstenção</h3>
+                  <div className={styles.modalField}>
+                    <label>Abstenção (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      disabled={sistemaTravado}
+                      value={porcentAbstencaoMeta}
+                      onChange={(e) => setPorcentAbstencaoMeta(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.modalField}>
+                    <label>Brancos (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      disabled={sistemaTravado}
+                      value={porcentBrancosMeta}
+                      onChange={(e) => setPorcentBrancosMeta(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.modalField}>
+                    <label>Nulos (%)</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      max="100"
+                      disabled={sistemaTravado}
+                      value={porcentNulosMeta}
+                      onChange={(e) => setPorcentNulosMeta(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Seção Eleitorado */}
+                <div className={styles.modalCard}>
+                  <h3>Eleitorado Total</h3>
+                  <div className={styles.modalField}>
+                    <label>Total de Eleitores</label>
+                    <input
+                      type="number"
+                      min="1"
+                      disabled={sistemaTravado}
+                      value={eleitoresTotais}
+                      onChange={(e) => setEleitoresTotais(e.target.value)}
+                    />
+                  </div>
+                  <div className={styles.modalField}>
+                    <label>Válidos Estimados</label>
+                    <div className={styles.modalValorCalculado} style={{ color: '#2ea043' }}>
+                      {totalVotosReal}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className={styles.tela}>
           <div className={styles.telageral}>
@@ -509,15 +548,7 @@ function Urna() {
           transition: 'opacity 300ms ease'
         }}
       >
-        <div className={styles.nome}>
-          <div className={styles.logo}>
-            <img src={imgCaveira} alt="Caveira de pirata" />
-          </div>
-          <div className={styles.nomedaurna}>
-            <p>Tigrinho</p>
-            <p>Eleitoral</p>
-          </div>
-        </div>
+        <div className={styles.nome}></div>
 
         <div className={styles.botoes}>
           <div className={styles.btn1}>
