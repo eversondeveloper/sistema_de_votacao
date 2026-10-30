@@ -430,7 +430,7 @@
 .nome {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1vmin;
+  margin-bottom: 2vmin;
   background-color: #cfc697;
   width: 95%;
   height: 16vmin;
@@ -441,10 +441,11 @@
   background-size: cover;
   box-shadow: inset 3px 3px 5px rgba(0, 0, 0, 0.315);
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .logo img {
-  width: 10vmin;
+  width: 13vmin;
   transition: 300ms;
   animation: caveira 8s infinite alternate;
 }

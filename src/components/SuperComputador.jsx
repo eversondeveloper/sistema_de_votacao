@@ -22,6 +22,7 @@ function SuperComputador() {
     candidato1,
     candidato2,
     totalVotosReal,
+    porcentCand1Real,
     corruption,
     setCorruption,
     comSom,
@@ -39,7 +40,7 @@ function SuperComputador() {
     setCorruption((prev) => !prev);
     if (comSom) {
       audioCorruptionRef.current.currentTime = 0;
-      audioCorruptionRef.current.play().catch(() => { });
+      audioCorruptionRef.current.play().catch(() => {});
     }
   }, [setCorruption, comSom]);
 
@@ -62,67 +63,94 @@ function SuperComputador() {
     const novosVotosCandidato1 = candidato1 - ultimoUrnaP1.current;
     const novosVotosCandidato2 = candidato2 - ultimoUrnaP2.current;
 
-    // Atualiza a memória com os valores atuais da urna
     ultimoUrnaP1.current = candidato1;
     ultimoUrnaP2.current = candidato2;
 
-    // 2. FRAUDE DESLIGADA: Segue rigorosamente a urna/player
-    if (!corruption) {
-      setCandidato1SP(candidato1);
-      setCandidato2SP(candidato2);
-      return;
-    }
+    const totalNovosVotos =
+      (novosVotosCandidato1 > 0 ? novosVotosCandidato1 : 0) +
+      (novosVotosCandidato2 > 0 ? novosVotosCandidato2 : 0);
 
-    // 3. FRAUDE LIGADA: Verifica o comparecimento dos eleitores
-    const eleitoresQueCompareceram =
-      candidato1SP + candidato2SP + quantVBrancos + quantVNulos;
-    const metadeDosEleitoresTotais = (Number(eleitoresTotais) || 0) * 0.5;
-
-    const passouDeCinquentaPorcento =
-      eleitoresQueCompareceram > metadeDosEleitoresTotais;
+    if (totalNovosVotos === 0) return;
 
     let votosParaCandidato1 = 0;
-    let votosParaCandidato2 = novosVotosCandidato2 > 0 ? novosVotosCandidato2 : 0;
+    let votosParaCandidato2 = 0;
 
-    // Placar temporário na memória para testar cada voto
+    // Placar temporário na memória para testar cada voto que entra
     let placarTesteCandidato1 = candidato1SP;
-    let placarTesteCandidato2 = candidato2SP + votosParaCandidato2;
+    let placarTesteCandidato2 = candidato2SP;
 
-    // Avalia os votos que chegam do Candidato 1 (Polícia)
-    for (let contador = 0; contador < novosVotosCandidato1; contador++) {
-      const totalValidosTeste = placarTesteCandidato1 + placarTesteCandidato2 + 1;
+    // 2. RECUPERAÇÃO GRADUAL: Se a fraude estiver desligada
+    if (!corruption) {
+      const metaPoliciaPlayer = Number(porcentCand1Real) || 50;
 
-      if (!passouDeCinquentaPorcento) {
-        // FASE 1: Até 50% dos eleitores -> Polícia lidera limitado a 52,00%
-        const porcentagemPoliciaTeste =
-          ((placarTesteCandidato1 + 1) / totalValidosTeste) * 100;
+      for (let contador = 0; contador < totalNovosVotos; contador++) {
+        const totalValidosTeste = placarTesteCandidato1 + placarTesteCandidato2 + 1;
+        const porcentagemPoliciaAtual =
+          (placarTesteCandidato1 / (totalValidosTeste - 1 || 1)) * 100;
 
-        if (porcentagemPoliciaTeste <= 52.00) {
+        // Se o Polícia estiver abaixo da meta do player, canaliza os votos para ele
+        if (porcentagemPoliciaAtual < metaPoliciaPlayer) {
           votosParaCandidato1 += 1;
           placarTesteCandidato1 += 1;
         } else {
-          // Passou de 52%: desvia o excedente para o Ladrão
-          votosParaCandidato2 += 1;
-          placarTesteCandidato2 += 1;
+          // Atingiu a meta: entrega conforme a distribuição de votos que entrou
+          if (novosVotosCandidato2 > 0 && votosParaCandidato2 < novosVotosCandidato2) {
+            votosParaCandidato2 += 1;
+            placarTesteCandidato2 += 1;
+          } else {
+            votosParaCandidato1 += 1;
+            placarTesteCandidato1 += 1;
+          }
         }
-      } else {
-        // FASE 2: Após 50% dos eleitores -> Ladrão vira e busca cravar 51,90%
-        const porcentagemLadraoTeste =
-          (placarTesteCandidato2 / (totalValidosTeste - 1 || 1)) * 100;
+      }
+    } else {
+      // 3. FRAUDE LIGADA: Duas fases da apuração
+      const eleitoresQueCompareceram =
+        candidato1SP + candidato2SP + quantVBrancos + quantVNulos;
+      const metadeDosEleitoresTotais = (Number(eleitoresTotais) || 0) * 0.5;
+      const passouDeCinquentaPorcento =
+        eleitoresQueCompareceram > metadeDosEleitoresTotais;
 
-        if (porcentagemLadraoTeste < 51.90) {
-          // Ladrão abaixo da meta: rouba o voto do Polícia
-          votosParaCandidato2 += 1;
-          placarTesteCandidato2 += 1;
+      // Votos legítimos do Ladrão sempre vão para ele
+      if (novosVotosCandidato2 > 0) {
+        votosParaCandidato2 += novosVotosCandidato2;
+        placarTesteCandidato2 += novosVotosCandidato2;
+      }
+
+      // Avalia voto a voto que entrou para o Polícia
+      for (let contador = 0; contador < novosVotosCandidato1; contador++) {
+        const totalValidosTeste = placarTesteCandidato1 + placarTesteCandidato2 + 1;
+
+        if (!passouDeCinquentaPorcento) {
+          // FASE 1: Até 50% dos eleitores -> Polícia lidera limitado a 52,00%
+          const porcentagemPoliciaTeste =
+            ((placarTesteCandidato1 + 1) / totalValidosTeste) * 100;
+
+          if (porcentagemPoliciaTeste <= 52.00) {
+            votosParaCandidato1 += 1;
+            placarTesteCandidato1 += 1;
+          } else {
+            // Ultrapassou 52%: desvia o excedente para o Ladrão
+            votosParaCandidato2 += 1;
+            placarTesteCandidato2 += 1;
+          }
         } else {
-          // Ladrão atingiu 51,90%: entrega o voto ao Polícia
-          votosParaCandidato1 += 1;
-          placarTesteCandidato1 += 1;
+          // FASE 2: Após 50% dos eleitores -> Ladrão busca cravar 51,90%
+          const porcentagemLadraoTeste =
+            (placarTesteCandidato2 / (totalValidosTeste - 1 || 1)) * 100;
+
+          if (porcentagemLadraoTeste < 51.90) {
+            votosParaCandidato2 += 1;
+            placarTesteCandidato2 += 1;
+          } else {
+            votosParaCandidato1 += 1;
+            placarTesteCandidato1 += 1;
+          }
         }
       }
     }
 
-    // 4. Grava os novos votos no SuperComputador
+    // 4. Aplica os votos somados no SuperComputador
     if (votosParaCandidato1 > 0) {
       setCandidato1SP((valorAnterior) => valorAnterior + votosParaCandidato1);
     }
@@ -138,6 +166,7 @@ function SuperComputador() {
     eleitoresTotais,
     quantVBrancos,
     quantVNulos,
+    porcentCand1Real,
   ]);
 
   // Cálculos e Porcentagens
@@ -165,9 +194,9 @@ function SuperComputador() {
       finalAudioTocandoRef.current = true;
       const timer = setTimeout(() => {
         if (Number(porcentCand1SP) > Number(porcentCand2SP)) {
-          audioFestaPRef.current.play().catch(() => { });
+          audioFestaPRef.current.play().catch(() => {});
         } else if (Number(porcentCand2SP) > Number(porcentCand1SP)) {
-          audioFestaLRef.current.play().catch(() => { });
+          audioFestaLRef.current.play().catch(() => {});
         }
       }, 500);
       return () => clearTimeout(timer);
